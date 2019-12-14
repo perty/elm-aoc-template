@@ -9,7 +9,6 @@ import Html.Events
 import Json.Decode
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import Svg.Events
 import Svg.Keyed
 import Task exposing (Task)
 
@@ -174,10 +173,8 @@ type Msg
     = InputChanged String
     | WindowResized
     | GotBoundsElement (Result Browser.Dom.Error Browser.Dom.Element)
-    | BoundsMouseMove ( Float, Float )
-    | BoundsMouseOut
     | MouseDown ( Float, Float )
-    | MouseUp
+    | MouseUp ( Float, Float )
     | MouseMove ( Float, Float )
     | Wheel ( Float, ( Float, Float ) )
 
@@ -208,12 +205,6 @@ update msg model =
             in
             ( { model | boundsElement = Nothing }, Cmd.none )
 
-        BoundsMouseMove ( x, y ) ->
-            ( { model | mouse = Just ( x, y ) }, Cmd.none )
-
-        BoundsMouseOut ->
-            ( { model | mouse = Nothing }, Cmd.none )
-
         MouseDown ( x, y ) ->
             let
                 ( panX, panY ) =
@@ -221,8 +212,8 @@ update msg model =
             in
             ( { model | mouseDown = Just ( panX + x, panY + y ) }, Cmd.none )
 
-        MouseUp ->
-            ( { model | mouseDown = Nothing }, Cmd.none )
+        MouseUp ( x, y ) ->
+            ( { model | mouse = Just ( x, y ), mouseDown = Nothing }, Cmd.none )
 
         MouseMove ( x, y ) ->
             case model.mouseDown of
@@ -234,10 +225,10 @@ update msg model =
                         dy =
                             startY - y
                     in
-                    ( { model | pan = ( dx, dy ) }, Cmd.none )
+                    ( { model | mouse = Nothing, pan = ( dx, dy ) }, Cmd.none )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( { model | mouse = Just ( x, y ) }, Cmd.none )
 
         Wheel ( delta, ( x, y ) ) ->
             case model.boundsElement of
@@ -291,8 +282,7 @@ view model =
             case model.mouseDown of
                 Just _ ->
                     [ Attr.style "cursor" "grabbing"
-                    , Html.Events.onMouseUp MouseUp
-                    , Html.Events.on "mousemove" (Json.Decode.map MouseMove mousePositionDecoder)
+                    , Html.Events.on "mouseup" (Json.Decode.map MouseUp mousePositionDecoder)
                     ]
 
                 Nothing ->
@@ -304,6 +294,7 @@ view model =
     Html.div
         ([ Attr.style "display" "flex"
          , Attr.style "height" "100%"
+         , Html.Events.on "mousemove" (Json.Decode.map MouseMove mousePositionDecoder)
          ]
             ++ mouseBasedAttrs
         )
@@ -332,7 +323,7 @@ view model =
         ]
 
 
-viewSvg : Browser.Dom.Element -> Model -> List (Html Msg)
+viewSvg : Browser.Dom.Element -> Model -> List (Html msg)
 viewSvg boundsElement model =
     let
         ( wires, bounds ) =
@@ -446,7 +437,7 @@ type alias ViewBox =
     }
 
 
-viewSvgElement : ViewBox -> List (Svg Msg) -> Svg Msg
+viewSvgElement : ViewBox -> List (Svg msg) -> Svg msg
 viewSvgElement viewBox children =
     let
         viewBoxAttr =
@@ -471,15 +462,13 @@ viewSvgElement viewBox children =
                     , SvgAttr.height (String.fromFloat viewBox.height)
                     , SvgAttr.fill "rgba(255,0,0,0.2)"
                     , SvgAttr.id boundsId
-                    , Svg.Events.on "mousemove" (Json.Decode.map BoundsMouseMove mousePositionDecoder)
-                    , Svg.Events.onMouseOut BoundsMouseOut
                     ]
                     []
                ]
         )
 
 
-viewWire : String -> Maybe Float -> Wire -> ( String, Svg Msg )
+viewWire : String -> Maybe Float -> Wire -> ( String, Svg msg )
 viewWire color maybePxPerUnit wire =
     let
         d =
