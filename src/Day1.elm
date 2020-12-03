@@ -1,19 +1,18 @@
 module Day1 exposing (..)
 
 import Html exposing (Html)
+import LineParser
 import Set exposing (Set)
 
 
-parse : String -> List Int
+parse : String -> Result String (List Int)
 parse =
-    String.trim
-        >> String.split "\n"
-        >> List.filterMap String.toInt
+    LineParser.parse (String.toInt >> Result.fromMaybe "String.toInt failed")
 
 
-solution1 : String -> Maybe Int
+solution1 : String -> Result String Int
 solution1 =
-    parse >> solve1 2020
+    parse >> Result.andThen (solve1 2020 >> Result.fromMaybe "No solution found")
 
 
 solve1 : Int -> List Int -> Maybe Int
@@ -40,9 +39,9 @@ solve1Helper target set list =
                 solve1Helper target set rest
 
 
-solution2 : String -> Maybe Int
+solution2 : String -> Result String Int
 solution2 =
-    parse >> solve2 2020
+    parse >> Result.andThen (solve2 2020 >> Result.fromMaybe "No solution found")
 
 
 solve2 : Int -> List Int -> Maybe Int
@@ -69,26 +68,22 @@ solve2Helper target list =
 main : Html Never
 main =
     Html.div []
-        [ Html.div []
-            [ Html.text
-                (case solution1 puzzleInput of
-                    Just answer ->
-                        String.fromInt answer
+        [ showResult (solution1 puzzleInput)
+        , showResult (solution2 puzzleInput)
+        ]
 
-                    Nothing ->
-                        "Found nothing."
-                )
-            ]
-        , Html.div []
-            [ Html.text
-                (case solution2 puzzleInput of
-                    Just answer ->
-                        String.fromInt answer
 
-                    Nothing ->
-                        "Found nothing."
-                )
-            ]
+showResult : Result String Int -> Html msg
+showResult result =
+    Html.output []
+        [ Html.text
+            (case result of
+                Ok int ->
+                    String.fromInt int
+
+                Err error ->
+                    error
+            )
         ]
 
 
