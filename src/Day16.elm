@@ -1,5 +1,6 @@
 module Day16 exposing (..)
 
+import Array exposing (Array)
 import Dict exposing (Dict)
 import Html exposing (Html)
 import LineParser
@@ -86,9 +87,7 @@ solve1 input =
     let
         fullRange : Set Int
         fullRange =
-            input.rules
-                |> Dict.values
-                |> List.foldl Set.union Set.empty
+            getFullRange input.rules
     in
     input.nearbyTickets
         |> List.concatMap
@@ -104,10 +103,160 @@ solve1 input =
         |> List.sum
 
 
+getFullRange : Dict k (Set comparable) -> Set comparable
+getFullRange =
+    Dict.values
+        >> List.foldl Set.union Set.empty
+
+
+solution2 : String -> Result String Int
+solution2 =
+    parse >> Result.andThen solve2
+
+
+solve2 : Input -> Result String Int
+solve2 input =
+    let
+        fullRange : Set Int
+        fullRange =
+            getFullRange input.rules
+
+        validTickets : List (Array Int)
+        validTickets =
+            input.yourTicket
+                :: input.nearbyTickets
+                |> List.filter (List.all (\number -> Set.member number fullRange))
+                |> List.map Array.fromList
+
+        numbersPerField : List (List Int)
+        numbersPerField =
+            input.yourTicket
+                |> List.indexedMap
+                    (\index _ ->
+                        validTickets
+                            |> List.filterMap (Array.get index)
+                    )
+
+        allFields : Set String
+        allFields =
+            input.rules |> Dict.keys |> Set.fromList
+
+        candidatesPerField : List ( Int, Set String )
+        candidatesPerField =
+            numbersPerField
+                |> List.map
+                    (List.map
+                        (\number ->
+                            input.rules
+                                |> Dict.filter (always (Set.member number))
+                                |> Dict.keys
+                                |> Set.fromList
+                        )
+                        >> List.foldl Set.intersect allFields
+                    )
+                |> untilUnchanged removeSinglesFromOthers
+                |> List.indexedMap Tuple.pair
+
+        singles : Result String (Dict Int String)
+        singles =
+            candidatesPerField
+                |> LineParser.parseGeneral "Candidate"
+                    (\( index, fields ) ->
+                        String.fromInt index
+                            ++ ": "
+                            ++ (fields |> Set.toList |> String.join ", ")
+                    )
+                    (\( index, fields ) ->
+                        case Set.toList fields of
+                            [ single ] ->
+                                Ok ( index, single )
+
+                            fieldNames ->
+                                Err
+                                    ("Expected a single field name but got "
+                                        ++ String.fromInt (List.length fieldNames)
+                                    )
+                    )
+                |> Result.map Dict.fromList
+    in
+    singles
+        |> Result.map (getAnswer2 input.yourTicket)
+
+
+getAnswer2 : List Int -> Dict Int String -> Int
+getAnswer2 yourTicket singles =
+    yourTicket
+        |> List.indexedMap
+            (\index number ->
+                Dict.get index singles
+                    |> Maybe.andThen
+                        (\field ->
+                            if String.startsWith "departure" field then
+                                Just number
+
+                            else
+                                Nothing
+                        )
+            )
+        |> List.filterMap identity
+        |> List.product
+
+
+untilUnchanged : (a -> a) -> a -> a
+untilUnchanged f a =
+    let
+        nextA =
+            f a
+    in
+    if nextA == a then
+        nextA
+
+    else
+        untilUnchanged f nextA
+
+
+removeSinglesFromOthers : List (Set String) -> List (Set String)
+removeSinglesFromOthers items =
+    case items of
+        [] ->
+            []
+
+        first :: rest ->
+            removeSinglesFromOthersHelper [] first rest
+
+
+removeSinglesFromOthersHelper : List (Set String) -> Set String -> List (Set String) -> List (Set String)
+removeSinglesFromOthersHelper before current after =
+    case Set.toList current of
+        [ single ] ->
+            let
+                nextBefore =
+                    before |> List.map (Set.remove single)
+
+                nextAfter =
+                    after |> List.map (Set.remove single)
+            in
+            case nextAfter of
+                [] ->
+                    List.reverse (current :: nextBefore)
+
+                next :: rest ->
+                    removeSinglesFromOthersHelper (current :: nextBefore) next rest
+
+        _ ->
+            case after of
+                [] ->
+                    List.reverse (current :: before)
+
+                next :: rest ->
+                    removeSinglesFromOthersHelper (current :: before) next rest
+
+
 main : Html Never
 main =
     Html.div []
         [ showResult (solution1 puzzleInput)
+        , showResult (solution2 puzzleInput)
         ]
 
 
@@ -390,5 +539,4 @@ nearby tickets:
 772,617,174,235,407,285,826,563,563,600,788,468,909,689,84,473,93,496,652,154
 427,842,823,347,73,849,257,158,600,449,51,478,270,303,523,295,738,237,269,120
 322,931,842,416,89,980,523,89,943,606,247,693,826,163,50,54,199,650,153,915
-
 """
