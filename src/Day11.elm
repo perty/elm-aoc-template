@@ -4,6 +4,7 @@ import Array exposing (Array)
 import Html exposing (Html)
 import LineParser
 import Matrix exposing (Matrix)
+import Matrix.Extra
 import Neighbours
 import Set
 
@@ -20,7 +21,7 @@ parse =
         (String.toList
             >> LineParser.parseGeneral "Spot" String.fromChar parseSpot
         )
-        >> Result.andThen (toMatrix Floor)
+        >> Result.andThen (Matrix.Extra.toMatrix Floor)
 
 
 parseSpot : Char -> Result String Spot
@@ -37,46 +38,6 @@ parseSpot char =
 
         _ ->
             Err "Unknown Spot."
-
-
-toMatrix : a -> List (List a) -> Result String (Matrix a)
-toMatrix default list =
-    let
-        array =
-            list
-                |> List.map Array.fromList
-                |> Array.fromList
-
-        widths =
-            list |> List.map List.length |> Set.fromList
-
-        width =
-            case Set.toList widths of
-                [] ->
-                    Ok 0
-
-                [ single ] ->
-                    Ok single
-
-                _ ->
-                    Err
-                        ("Sublists have different lengths: "
-                            ++ (widths |> Set.toList |> List.map String.fromInt |> String.join ", ")
-                        )
-    in
-    width |> Result.map (toMatrixHelper default array)
-
-
-toMatrixHelper : a -> Array (Array a) -> Int -> Matrix a
-toMatrixHelper default array width =
-    Matrix.generate
-        width
-        (Array.length array)
-        (\x y ->
-            Array.get y array
-                |> Maybe.andThen (Array.get x)
-                |> Maybe.withDefault default
-        )
 
 
 solution1 : String -> Result String Int
