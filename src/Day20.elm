@@ -274,7 +274,7 @@ puzzle tiles =
                 Ok
                     ( cornerIdProduct
                     , joinImage (originalSize - 2) .image
-                    , joinImage (originalSize + 1) .imageWithBorders
+                    , joinImage (originalSize + 2) .imageWithBorders
                     )
 
 
@@ -283,22 +283,29 @@ puzzleHelper ( x, y ) tileId tile ( initialTilesLeft, initialResult ) =
     let
         _ =
             Debug.log "puzzleHelper" tileId
-    in
-    tile.edges
-        |> List.filterMap
-            (\edge ->
-                findNextTile edge initialTilesLeft
-                    |> Maybe.map (Tuple.pair edge)
-            )
-        |> (\list ->
-                let
-                    _ =
+
+        nextTiles =
+            tile.edges
+                |> List.filterMap
+                    (\edge ->
+                        findNextTile edge initialTilesLeft
+                            |> Maybe.map (Tuple.pair edge)
+                    )
+                |> (\list ->
+                        let
+                            _ =
+                                list
+                                    |> List.map (\( edge, ( id, _ ) ) -> ( edge.turns, id ))
+                                    |> Debug.log "next tiles"
+                        in
                         list
-                            |> List.map (\( edge, ( id, _ ) ) -> ( edge.turns, id ))
-                            |> Debug.log "next tiles"
-                in
-                list
-           )
+                   )
+
+        tilesLeftWithoutNext =
+            nextTiles
+                |> List.foldl (\( _, ( id, _ ) ) -> Dict.remove id) initialTilesLeft
+    in
+    nextTiles
         |> List.foldl
             (\( edge, ( nextTileId, nextTile ) ) ( tilesLeft, result ) ->
                 let
@@ -318,23 +325,16 @@ puzzleHelper ( x, y ) tileId tile ( initialTilesLeft, initialResult ) =
 
                             _ ->
                                 ( x, y )
+
+                    nextResult =
+                        Dict.insert nextCoord ( nextTileId, nextTile ) result
+
+                    _ =
+                        Debug.log "fold" ( tileId, nextTileId, ( edge.turns, ( x, y ), nextCoord ) )
                 in
-                if Dict.member nextCoord result || not (Dict.member nextTileId tilesLeft) then
-                    ( tilesLeft, result )
-
-                else
-                    let
-                        ( nextTilesLeft, nextResult ) =
-                            ( Dict.remove nextTileId tilesLeft
-                            , Dict.insert nextCoord ( nextTileId, nextTile ) result
-                            )
-
-                        _ =
-                            Debug.log "fold" ( tileId, nextTileId, ( edge.turns, ( x, y ), nextCoord ) )
-                    in
-                    puzzleHelper nextCoord nextTileId nextTile ( nextTilesLeft, nextResult )
+                puzzleHelper nextCoord nextTileId nextTile ( tilesLeft, nextResult )
             )
-            ( initialTilesLeft
+            ( tilesLeftWithoutNext
             , initialResult
             )
 
@@ -586,7 +586,7 @@ main =
 
 viewImage : Matrix Color -> Html msg
 viewImage matrix =
-    Html.pre []
+    Html.pre [ Html.Attributes.style "font-size" "16px" ]
         [ Html.text
             (matrix
                 |> Matrix.indexedMap (\x y color -> ( x, y, color ))
