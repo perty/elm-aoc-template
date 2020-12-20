@@ -63,10 +63,10 @@ parse =
                                       , colors = right
                                       }
                                     , { turns = 2
-                                      , colors = bottom
+                                      , colors = reverseArray bottom
                                       }
                                     , { turns = 3
-                                      , colors = left
+                                      , colors = reverseArray left
                                       }
                                     ]
                               , image = trimBorder White matrix
@@ -185,8 +185,25 @@ puzzle tiles =
                         ( Dict.fromList rest, Dict.singleton ( 0, 0 ) ( firstTileId, firstTile ) )
 
                 _ =
-                    result
-                        |> Dict.map (always Tuple.first)
+                    let
+                        width =
+                            maxX - minX + 1
+
+                        height =
+                            maxY - minY + 1
+
+                        mat =
+                            result
+                                |> Dict.toList
+                                |> List.foldl
+                                    (\( ( x, y ), ( id, _ ) ) matrix ->
+                                        Matrix.set (x - minX) (y - minY) id matrix
+                                    )
+                                    (Matrix.repeat width height 0)
+                    in
+                    List.range 0 (Matrix.height mat - 1)
+                        |> List.filterMap (\y -> Matrix.getRow y mat |> Result.toMaybe |> Maybe.map (Array.toList >> Debug.toString))
+                        |> String.join "  "
                         |> Debug.log "puzzle"
 
                 coords =
@@ -335,10 +352,10 @@ findNextTile wantedEdge =
                         |> List.filterMap
                             (\edge ->
                                 if edge.colors == wantedEdge.colors then
-                                    Just ( False, edge )
+                                    Just ( True, edge )
 
                                 else if reverseArray edge.colors == wantedEdge.colors then
-                                    Just ( True, edge )
+                                    Just ( False, edge )
 
                                 else
                                     Nothing
