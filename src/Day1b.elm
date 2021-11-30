@@ -1,6 +1,7 @@
-module Day2 exposing (main, parse, puzzleInput, solution2)
+module Day1b exposing (main, parse, puzzleInput, solution2)
 
 import Html exposing (Html)
+import List.Extra as List
 
 
 main : Html Never
@@ -12,45 +13,56 @@ solution2 : String -> Int
 solution2 input =
     let
         ints =
-            Debug.log "ints"
-                (parse input)
+            parse input |> List.filter (\n -> n /= 0)
 
-        ( a, b ) =
+        ( a, b, c ) =
             Debug.log "solver" (solver ints)
     in
-    a * b
+    a * b * c
 
 
-solver : List Int -> ( Int, Int )
+
+-- member(First, ints), member(Second, ints), member(Third, ints), 2020 = A + B + C
+
+
+solver : List Int -> ( Int, Int, Int )
 solver ints =
     case ints of
         [] ->
-            ( 0, 0 )
+            ( 0, 0, 0 )
 
-        head :: tail ->
-            let
-                helper =
-                    Debug.log "helper" (solverHelper head tail)
-            in
-            if helper == 0 then
-                solver tail
+        first :: tail ->
+            case solverSecond first tail of
+                Nothing ->
+                    solver tail
 
-            else
-                ( head, helper )
+                Just ( second, third ) ->
+                    ( first, second, third )
 
 
-solverHelper : Int -> List Int -> Int
-solverHelper int ints =
+solverSecond : Int -> List Int -> Maybe ( Int, Int )
+solverSecond first ints =
     case ints of
         [] ->
-            0
+            Nothing
 
-        head :: tail ->
-            if int + head == 2020 then
-                head
+        second :: tail ->
+            case solverThird (first + second) tail of
+                Nothing ->
+                    solverSecond first tail
 
-            else
-                solverHelper int tail
+                Just third ->
+                    Just ( second, third )
+
+
+solverThird : Int -> List Int -> Maybe Int
+solverThird int ints =
+    case ints of
+        [] ->
+            Nothing
+
+        list ->
+            List.find (\n -> n == 2020 - int) list
 
 
 parse : String -> List Int
