@@ -1,4 +1,4 @@
-module Day2 exposing (PasswordEntry, main, parse, solution)
+module Day2 exposing (PasswordEntry, main, parse, solution1, solution2, validEntry2)
 
 import Html exposing (Html)
 import Parser exposing ((|.), (|=), DeadEnd, chompIf, chompUntilEndOr, getChompedString, int, spaces, symbol)
@@ -6,39 +6,42 @@ import Parser exposing ((|.), (|=), DeadEnd, chompIf, chompUntilEndOr, getChompe
 
 main : Html Never
 main =
-    Html.div [] [ Html.text (String.fromInt (solution puzzleInput)) ]
+    Html.div []
+        [ Html.header [] [ Html.text "Day 2" ]
+        , Html.text "1: "
+        , Html.text (String.fromInt (solution1 puzzleInput))
+        , Html.br [] []
+        , Html.text "2: "
+        , Html.text (String.fromInt (solution2 puzzleInput))
+        ]
 
 
 type alias PasswordEntry =
-    { min : Int
-    , max : Int
+    { first : Int
+    , second : Int
     , char : String
     , password : String
     }
 
 
-solution : String -> Int
-solution input =
-    let
-        entries =
-            Debug.log "parse"
-                (parse input)
-
-        a =
-            Debug.log "solver" (solver entries)
-    in
-    a
-
-
-solver : List PasswordEntry -> Int
-solver entries =
-    entries
-        |> List.filter (\e -> validEntry e)
+solution1 : String -> Int
+solution1 input =
+    input
+        |> parse
+        |> List.filter (\e -> validEntry1 e)
         |> List.length
 
 
-validEntry : PasswordEntry -> Bool
-validEntry passwordEntry =
+solution2 : String -> Int
+solution2 input =
+    input
+        |> parse
+        |> List.filter (\e -> validEntry2 e)
+        |> List.length
+
+
+validEntry1 : PasswordEntry -> Bool
+validEntry1 passwordEntry =
     let
         noChars =
             passwordEntry.password
@@ -46,7 +49,23 @@ validEntry passwordEntry =
                 |> List.filter (\c -> String.fromChar c == passwordEntry.char)
                 |> List.length
     in
-    noChars >= passwordEntry.min && noChars <= passwordEntry.max
+    noChars >= passwordEntry.first && noChars <= passwordEntry.second
+
+
+validEntry2 : PasswordEntry -> Bool
+validEntry2 passwordEntry =
+    let
+        charPositions =
+            String.indexes passwordEntry.char passwordEntry.password
+
+        firstPos =
+            List.member (passwordEntry.first - 1) charPositions
+
+        secondPos =
+            List.member (passwordEntry.second - 1) charPositions
+    in
+    (firstPos && not secondPos)
+        || (not firstPos && secondPos)
 
 
 parse : String -> List PasswordEntry

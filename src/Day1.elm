@@ -12,11 +12,10 @@ solution1 : String -> Int
 solution1 input =
     let
         ints =
-            Debug.log "ints"
-                (parse input)
+            parse input
 
         ( a, b ) =
-            Debug.log "solver" (solver ints)
+            solver ints
     in
     a * b
 
@@ -30,7 +29,7 @@ solver ints =
         head :: tail ->
             let
                 helper =
-                    Debug.log "helper" (solverHelper head tail)
+                    solverHelper head tail
             in
             if helper == 0 then
                 solver tail

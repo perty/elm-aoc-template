@@ -16,7 +16,7 @@ solution2 input =
             parse input |> List.filter (\n -> n /= 0)
 
         ( a, b, c ) =
-            Debug.log "solver" (solver ints)
+            solver ints
     in
     a * b * c
 
