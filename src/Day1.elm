@@ -7,7 +7,14 @@ solution1 : String -> Int
 solution1 input =
     input
         |> parse
-        |> solve
+        |> solve1
+
+
+solution2 : String -> Int
+solution2 input =
+    input
+        |> parse
+        |> solve2
 
 
 parse : String -> List Int
@@ -18,18 +25,18 @@ parse string =
         |> List.filterMap String.toInt
 
 
-solve : List Int -> Int
-solve ints =
+solve1 : List Int -> Int
+solve1 ints =
     case ints of
         [] ->
             0
 
         head :: tail ->
-            solveHelper head tail
+            solveHelper1 head tail
 
 
-solveHelper : Int -> List Int -> Int
-solveHelper compare ints =
+solveHelper1 : Int -> List Int -> Int
+solveHelper1 compare ints =
     case ints of
         [] ->
             0
@@ -43,12 +50,52 @@ solveHelper compare ints =
                     else
                         0
             in
-            ascend + solveHelper head tail
+            ascend + solveHelper1 head tail
+
+
+solve2 : List Int -> Int
+solve2 ints =
+    case ints of
+        first :: second :: third :: tail ->
+            let
+                window =
+                    first + second + third
+            in
+            solveHelper2 window (second :: third :: tail)
+
+        _ ->
+            0
+
+
+solveHelper2 : Int -> List Int -> Int
+solveHelper2 compare ints =
+    case ints of
+        first :: second :: third :: tail ->
+            let
+                window =
+                    first + second + third
+
+                ascend =
+                    if compare < window then
+                        1
+
+                    else
+                        0
+            in
+            ascend + solveHelper2 window (second :: third :: tail)
+
+        _ ->
+            0
 
 
 main : Html Never
 main =
-    Html.div [] [ Html.text (String.fromInt (solution1 puzzleInput)) ]
+    Html.div []
+        [ Html.p []
+            [ Html.text (String.fromInt (solution1 puzzleInput))
+            ]
+        , Html.p [] [ Html.text (String.fromInt (solution2 puzzleInput)) ]
+        ]
 
 
 puzzleInput : String

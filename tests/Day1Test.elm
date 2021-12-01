@@ -14,6 +14,10 @@ suite =
             , test "As given" <|
                 \_ -> Day1.solution1 testInput |> Expect.equal 7
             ]
+        , describe "Problem 2"
+            [ test "As given, sliding window of 3" <|
+                \_ -> Day1.solution2 testInput |> Expect.equal 5
+            ]
         ]
 
 
