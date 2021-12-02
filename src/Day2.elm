@@ -23,6 +23,7 @@ solution2 input =
     input
         |> parse
         |> solve2
+        |> (\position -> position.horizontal * position.depth)
 
 
 parse : String -> List Command
@@ -71,19 +72,26 @@ parseCommand =
         ]
 
 
-type alias Position =
+type alias Position1 =
     { horizontal : Int
     , depth : Int
     }
 
 
-solve1 : List Command -> Position
-solve1 ints =
-    List.foldl nextPos (Position 0 0) ints
+type alias Position2 =
+    { horizontal : Int
+    , depth : Int
+    , aim : Int
+    }
 
 
-nextPos : Command -> Position -> Position
-nextPos command position =
+solve1 : List Command -> Position1
+solve1 commands =
+    List.foldl nextPos1 (Position1 0 0) commands
+
+
+nextPos1 : Command -> Position1 -> Position1
+nextPos1 command position =
     case command of
         Forward int ->
             { position | horizontal = position.horizontal + int }
@@ -95,9 +103,25 @@ nextPos command position =
             { position | depth = position.depth - int }
 
 
-solve2 : List Command -> Int
-solve2 _ =
-    -1
+solve2 : List Command -> Position2
+solve2 commands =
+    List.foldl nextPos2 (Position2 0 0 0) commands
+
+
+nextPos2 : Command -> Position2 -> Position2
+nextPos2 command position =
+    case command of
+        Forward int ->
+            { position
+                | horizontal = position.horizontal + int
+                , depth = position.aim * int + position.depth
+            }
+
+        Down int ->
+            { position | aim = position.aim + int }
+
+        Up int ->
+            { position | aim = position.aim - int }
 
 
 main : Html Never

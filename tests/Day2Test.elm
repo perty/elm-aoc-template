@@ -16,7 +16,7 @@ suite =
             ]
         , describe "Problem 2"
             [ test "As given" <|
-                \_ -> Day2.solution2 testInput |> Expect.equal -1
+                \_ -> Day2.solution2 testInput |> Expect.equal 900
             ]
         ]
 
