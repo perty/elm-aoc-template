@@ -1,7 +1,7 @@
-module Day2 exposing (..)
+module Day2 exposing (Command(..), Position1, Position2, main, parse, solution1, solution2)
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, Step(..), Trailing(..), chompUntil, int, keyword, loop, oneOf, spaces, succeed)
+import Parser exposing ((|.), (|=), Parser, Step(..), chompUntil, int, keyword, loop, oneOf, spaces, succeed)
 
 
 type Command
