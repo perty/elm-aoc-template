@@ -1,7 +1,8 @@
-module Day3 exposing (main, occurrences, parse, solution1, solution2)
+module Day3 exposing (main, occurrences, oxygen, parse, solution1, solution2)
 
 import Binary
 import Html exposing (Html)
+import List.Extra as List
 
 
 main : Html Never
@@ -34,21 +35,10 @@ solve1 readings =
         halfLength =
             List.length readings // 2
 
-        criteria =
-            \n ->
-                if n > halfLength then
-                    1
-
-                else
-                    0
-
         bits =
             List.foldl occurrences [] readings
-                |> List.map criteria
+                |> List.map (criteria halfLength)
                 |> Binary.fromIntegers
-
-        _ =
-            Debug.log "bits" bits
 
         gamma =
             Binary.toDecimal bits
@@ -57,6 +47,15 @@ solve1 readings =
             Binary.toDecimal (Binary.not bits)
     in
     gamma * epsilon
+
+
+criteria : Int -> Int -> Int
+criteria halfLength n =
+    if n > halfLength then
+        1
+
+    else
+        0
 
 
 occurrences : Reading -> List Int -> List Int
@@ -75,8 +74,64 @@ occurrences reading acc =
 
 
 solution2 : String -> Int
-solution2 _ =
-    4711
+solution2 string =
+    string
+        |> parse
+        |> solve2
+
+
+solve2 : List Reading -> Int
+solve2 readings =
+    oxygen readings 0 |> Binary.fromIntegers |> Binary.toDecimal
+
+
+dominantAtPos : List Reading -> Int -> Int
+dominantAtPos readings pos =
+    let
+        dominatFold reading ( ones, zeroes ) =
+            if List.getAt pos reading == Just 1 then
+                ( ones + 1, zeroes )
+
+            else
+                ( ones, zeroes + 1 )
+
+        ( o, z ) =
+            List.foldl dominatFold ( 0, 0 ) readings
+    in
+    if o >= z then
+        1
+
+    else
+        0
+
+
+oxygen : List Reading -> Int -> Reading
+oxygen readings pos =
+    case readings of
+        [] ->
+            []
+
+        [ n ] ->
+            n
+
+        _ ->
+            let
+                getAt r =
+                    List.getAt pos r |> Maybe.withDefault 0
+
+                dominant =
+                    dominantAtPos readings pos
+
+                keep =
+                    List.filter (\r -> getAt r == dominant) readings
+            in
+            oxygen keep (pos + 1)
+
+
+
+-- [7,5,8,7,5]
+-- [1,0,1,1,0]
+--foo halfLength os readings =
 
 
 parse : String -> List (List Int)
