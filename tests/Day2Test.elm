@@ -1,4 +1,4 @@
-module Day2Test exposing (..)
+module Day2Test exposing (suite, testInput, testInputParsed)
 
 import Day2 exposing (Command(..))
 import Expect exposing (Expectation)
@@ -7,7 +7,7 @@ import Test exposing (..)
 
 suite : Test
 suite =
-    describe "Day1"
+    describe "Day2"
         [ describe "Problem 1"
             [ test "Parser" <|
                 \_ -> Day2.parse testInput |> Expect.equal testInputParsed
