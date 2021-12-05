@@ -1,4 +1,4 @@
-module Day3 exposing (main, occurrences, oxygen, parse, puzzleInput, solution1, solution2)
+module Day3 exposing (carbonOxid, main, occurrences, oxygen, parse, puzzleInput, solution1, solution2)
 
 import Binary
 import Html exposing (Html)
@@ -82,7 +82,8 @@ solution2 string =
 
 solve2 : List Reading -> Int
 solve2 readings =
-    oxygen readings 0 |> Binary.fromIntegers |> Binary.toDecimal
+    (oxygen readings 0 |> Binary.fromIntegers |> Binary.toDecimal)
+        * (carbonOxid readings 0 |> Binary.fromIntegers |> Binary.toDecimal)
 
 
 dominantAtPos : List Reading -> Int -> Int
@@ -126,6 +127,29 @@ oxygen readings pos =
                     List.filter (\r -> getAt r == dominant) readings
             in
             oxygen keep (pos + 1)
+
+
+carbonOxid : List Reading -> Int -> Reading
+carbonOxid readings pos =
+    case readings of
+        [] ->
+            []
+
+        [ n ] ->
+            n
+
+        _ ->
+            let
+                getAt r =
+                    List.getAt pos r |> Maybe.withDefault 0
+
+                dominant =
+                    dominantAtPos readings pos
+
+                keep =
+                    List.filter (\r -> getAt r /= dominant) readings
+            in
+            carbonOxid keep (pos + 1)
 
 
 

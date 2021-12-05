@@ -25,6 +25,8 @@ suite =
         , describe "Problem 2"
             [ test "oxygen" <|
                 \_ -> Day3.oxygen testInputParsed 0 |> Expect.equal [ 1, 0, 1, 1, 1 ]
+            , test "carbonOxid" <|
+                \_ -> Day3.carbonOxid testInputParsed 0 |> Expect.equal [ 0, 1, 0, 1, 0 ]
             , test "As given" <|
                 \_ -> Day3.solution2 testInput |> Expect.equal 230
             ]
