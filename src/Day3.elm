@@ -1,4 +1,4 @@
-module Day3 exposing (main, occurrences, oxygen, parse, solution1, solution2)
+module Day3 exposing (main, occurrences, oxygen, parse, puzzleInput, solution1, solution2)
 
 import Binary
 import Html exposing (Html)
