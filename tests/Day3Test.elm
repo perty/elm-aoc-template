@@ -29,6 +29,8 @@ suite =
                 \_ -> Day3.carbonOxid testInputParsed 0 |> Expect.equal [ 0, 1, 0, 1, 0 ]
             , test "As given" <|
                 \_ -> Day3.solution2 testInput |> Expect.equal 230
+            , test "From puzzle input" <|
+                \_ -> Day3.solution2 Day3.puzzleInput |> Expect.equal 3277956
             ]
         ]
 

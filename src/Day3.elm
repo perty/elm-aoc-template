@@ -89,7 +89,7 @@ solve2 readings =
 dominantAtPos : List Reading -> Int -> Int
 dominantAtPos readings pos =
     let
-        dominatFold reading ( ones, zeroes ) =
+        dominateFold reading ( ones, zeroes ) =
             if List.getAt pos reading == Just 1 then
                 ( ones + 1, zeroes )
 
@@ -97,7 +97,7 @@ dominantAtPos readings pos =
                 ( ones, zeroes + 1 )
 
         ( o, z ) =
-            List.foldl dominatFold ( 0, 0 ) readings
+            List.foldl dominateFold ( 0, 0 ) readings
     in
     if o >= z then
         1
