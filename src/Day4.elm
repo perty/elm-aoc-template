@@ -1,16 +1,13 @@
-module Day4 exposing (Board, Nums(..), main, parse, puzzleInput, solution1, solution2, solve1, solve2)
+module Day4 exposing (Board, boardParser, boardsParser, main, numbersParser, parse, puzzleInput, rowParser, solution1, solution2, solve1, solve2)
 
 import Html exposing (Html)
-import List.Extra as List
-import Matrix exposing (Matrix)
-import Parser exposing ((|.), (|=), Parser, Step(..), Trailing(..), chompIf, chompUntil, chompWhile, float, int, loop, oneOf, spaces, succeed, symbol)
+import Parser exposing ((|.), (|=), Parser, Step(..), Trailing(..), chompWhile, int, oneOf, succeed)
 import Parser.Extras
 
 
 type alias Bingo =
-    { numbers : Nums
-
-    --   , boards : List Board
+    { numbers : List Int
+    , boards : List Board
     }
 
 
@@ -47,9 +44,8 @@ parse string =
                 _ =
                     Debug.log "parser error" error
             in
-            { numbers = Nums []
-
-            --, boards = []
+            { numbers = []
+            , boards = []
             }
 
 
@@ -57,24 +53,12 @@ bingoParser : Parser Bingo
 bingoParser =
     succeed Bingo
         |= numbersParser
-        |. chompNl
+        |= boardsParser
 
 
-
---|= boardsParser
-
-
-chompNl =
-    chompIf (\c -> c == '\n')
-
-
-type Nums
-    = Nums (List Int)
-
-
-numbersParser : Parser Nums
+numbersParser : Parser (List Int)
 numbersParser =
-    succeed Nums
+    succeed identity
         |= Parser.sequence
             { start = "\n"
             , separator = ","
@@ -85,39 +69,72 @@ numbersParser =
             }
 
 
-numbersParserHelper : List Int -> Parser (Step (List Int) (List Int))
-numbersParserHelper reversedList =
+boardsParser : Parser (List Board)
+boardsParser =
+    succeed identity
+        |= Parser.sequence
+            { start = ""
+            , separator = "\n"
+            , end = ""
+            , spaces = Parser.succeed ()
+            , item = boardParser
+            , trailing = Parser.Optional
+            }
+        |. Parser.end
+
+
+loopLineWise : Parser a -> Parser (List a)
+loopLineWise parser =
+    Parser.succeed identity
+        |= Parser.sequence
+            { start = ""
+            , separator = "\n"
+            , end = ""
+            , spaces = Parser.succeed ()
+            , item = parser
+            , trailing = Parser.Optional
+            }
+        |. Parser.end
+
+
+rowParser : Parser (List Int)
+rowParser =
+    succeed identity
+        |= Parser.sequence
+            { start = ""
+            , separator = ""
+            , end = "\n"
+            , spaces = chompWhile (\c -> c == ' ')
+            , item = int
+            , trailing = Parser.Optional
+            }
+
+
+boardParser : Parser (List (List Int))
+boardParser =
+    succeed identity
+        |= Parser.sequence
+            { start = "\n"
+            , separator = ""
+            , end = ""
+            , spaces = Parser.succeed ()
+            , item = rowParser
+            , trailing = Parser.Mandatory
+            }
+
+
+boardParserHelper : List (List Int) -> Parser (Step (List (List Int)) (List (List Int)))
+boardParserHelper reversedList =
     let
         _ =
             Debug.log "rev list" reversedList
     in
     oneOf
-        [ succeed (\n -> Loop (n :: reversedList))
-            |. spaces
-            |= int
-            |. chompIf (\c -> c == ',')
+        [ succeed (\row -> Loop (row :: reversedList))
+            |= rowParser
         , succeed ()
             |> Parser.map (\_ -> Done (List.reverse reversedList))
         ]
-
-
-boardsParser : Parser (List Board)
-boardsParser =
-    Parser.Extras.many boardParser
-
-
-boardParser : Parser Board
-boardParser =
-    Parser.Extras.many
-        (Parser.sequence
-            { start = "\n"
-            , separator = " "
-            , end = "\n"
-            , spaces = spaces
-            , item = int
-            , trailing = Mandatory
-            }
-        )
 
 
 solve1 : Bingo -> Int
