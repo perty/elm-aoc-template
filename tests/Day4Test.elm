@@ -20,21 +20,31 @@ suite =
                 \_ ->
                     Parser.run Day4.boardsParser "\n1 2 3 4\n5 6 7 8\n8 9 10\n11 12 13\n14 15 16\n\n"
                         |> Expect.equal (Ok [ [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 8, 9, 10 ], [ 11, 12, 13 ], [ 14, 15, 16 ] ] ])
-
-            {- , test "As given" <|
-                   \_ -> Day4.solution1 testInput |> Expect.equal 198
-               , test "From puzzle input" <|
-                   \_ -> Day4.solution1 Day4.puzzleInput |> Expect.equal 2498354
-            -}
+            , describe "Rows bingo"
+                [ test "No bingo" <|
+                    \_ ->
+                        Day4.rowsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 7, 8, 9, 10 ], [ 11, 12, 13, 14, 15 ] ]
+                            |> Expect.equal False
+                , test "bingo" <|
+                    \_ ->
+                        Day4.rowsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 7, 8, 9, 10 ], [ 12, 1, 3, 4, 5 ] ]
+                            |> Expect.equal False
+                ]
+            , describe "Winner board"
+                [ test "Simple" <|
+                    \_ -> Day4.winner winner1 0 |> Expect.equal ( board1, [ 1, 2, 3, 4, 5, 6 ] )
+                ]
+            , test "As given" <|
+                \_ -> Day4.solution1 testInput |> Expect.equal 4512
+            , test "From puzzle input" <|
+                \_ -> Day4.solution1 Day4.puzzleInput |> Expect.equal -1
             ]
-
-        {- , describe "Problem 2"
-           [ test "As given" <|
-               \_ -> Day4.solution2 testInput |> Expect.equal 230
-           , test "From puzzle input" <|
-               \_ -> Day4.solution2 Day4.puzzleInput |> Expect.equal 3277956
-           ]
-        -}
+        , describe "Problem 2"
+            [ test "As given" <|
+                \_ -> Day4.solution2 testInput |> Expect.equal -1
+            , test "From puzzle input" <|
+                \_ -> Day4.solution2 Day4.puzzleInput |> Expect.equal -1
+            ]
         ]
 
 
@@ -85,3 +95,27 @@ testInputParsed =
           ]
         ]
     }
+
+
+winner1 : Day4.Bingo
+winner1 =
+    { numbers = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+    , boards =
+        [ board1
+        , board2
+        ]
+    }
+
+
+board1 : Day4.Board
+board1 =
+    [ [ 3, 4, 5, 6 ]
+    , [ 12, 34, 0 ]
+    ]
+
+
+board2 : Day4.Board
+board2 =
+    [ [ 12, 34, 7 ]
+    , [ 18, 19, 8 ]
+    ]

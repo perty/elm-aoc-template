@@ -1,6 +1,7 @@
-module Day4 exposing (Board, boardParser, boardsParser, main, numbersParser, parse, puzzleInput, rowParser, solution1, solution2, solve1, solve2)
+module Day4 exposing (Bingo, Board, boardParser, boardsParser, main, numbersParser, parse, puzzleInput, rowParser, rowsBingo, solution1, solution2, solve1, solve2, winner)
 
 import Html exposing (Html)
+import List.Extra as List
 import Parser exposing ((|.), (|=), Parser, Step(..), Trailing(..), chompWhile, int, loop, succeed)
 
 
@@ -109,7 +110,74 @@ rowParser =
 
 solve1 : Bingo -> Int
 solve1 bingo =
-    42
+    winner bingo 0 |> boardValue
+
+
+
+-- Which board can do we the fewest numbers for a bingo?
+
+
+winner : Bingo -> Int -> ( Board, List Int )
+winner bingo pos =
+    let
+        currentNumbers =
+            List.take pos bingo.numbers
+
+        winningBoards =
+            List.filter (\b -> hasBingo currentNumbers b) bingo.boards
+    in
+    case List.head winningBoards of
+        Just board ->
+            ( board, currentNumbers )
+
+        Nothing ->
+            winner bingo (pos + 1)
+
+
+boardValue : ( Board, List Int ) -> Int
+boardValue ( board, marked ) =
+    let
+        sumUnmarked l =
+            List.filter (\n -> not (List.member n marked)) l
+                |> List.foldl (+) 0
+
+        unmarkedValue =
+            board
+                |> List.map (\l -> sumUnmarked l)
+                |> List.foldl (+) 0
+
+        lastNumber =
+            List.last marked |> Maybe.withDefault 0
+    in
+    lastNumber * unmarkedValue
+
+
+hasBingo : List Int -> Board -> Bool
+hasBingo numbers board =
+    rowsBingo numbers board
+
+
+
+--|| colsBingo numbers board
+
+
+rowsBingo : List Int -> List (List Int) -> Bool
+rowsBingo numbers rows =
+    case rows of
+        [] ->
+            False
+
+        head :: tail ->
+            let
+                hits =
+                    Debug.log "hits" <|
+                        List.filter (\n -> List.member n numbers) head
+            in
+            if (hits |> List.length) == List.length head then
+                True
+
+            else
+                rowsBingo numbers tail
 
 
 solve2 : Bingo -> Int
