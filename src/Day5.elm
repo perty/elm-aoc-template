@@ -1,6 +1,8 @@
 module Day5 exposing (..)
 
 import Html exposing (Html)
+import Parser exposing ((|.), (|=), Parser, Trailing(..), int, spaces, succeed, symbol)
+import Parser.Extras
 
 
 type alias Plan =
@@ -29,9 +31,35 @@ solution2 input =
         |> solve2
 
 
-parse : String -> Plan
-parse _ =
-    []
+parse : String -> List EndPoint
+parse string =
+    case Parser.run planParser string of
+        Ok plan ->
+            plan
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "Parse error" error
+            in
+            []
+
+
+planParser =
+    Parser.Extras.many endPointParser
+
+
+endPointParser : Parser EndPoint
+endPointParser =
+    succeed EndPoint
+        |. spaces
+        |= int
+        |. symbol ","
+        |= int
+        |. symbol " -> "
+        |= int
+        |. symbol ","
+        |= int
 
 
 solve1 : Plan -> Int
