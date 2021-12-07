@@ -18,8 +18,8 @@ suite =
                         |> Expect.equal (Ok [ 1, 2, 3, 4 ])
             , test "Board parser" <|
                 \_ ->
-                    Parser.run Day4.boardsParser "\n1 2 3 4\n5 6 7 8\n\n8 9 10\n11 12 13\n"
-                        |> Expect.equal (Ok [ [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ], [ [ 8, 9, 10 ], [ 11, 12, 13 ] ] ])
+                    Parser.run Day4.boardsParser "\n1 2 3 4\n5 6 7 8\n8 9 10\n11 12 13\n14 15 16\n\n"
+                        |> Expect.equal (Ok [ [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 8, 9, 10 ], [ 11, 12, 13 ], [ 14, 15, 16 ] ] ])
 
             {- , test "As given" <|
                    \_ -> Day4.solution1 testInput |> Expect.equal 198
