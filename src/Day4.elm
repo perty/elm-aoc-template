@@ -1,4 +1,4 @@
-module Day4 exposing (Bingo, Board, boardParser, boardsParser, main, numbersParser, parse, puzzleInput, rowParser, rowsBingo, solution1, solution2, solve1, solve2, winner)
+module Day4 exposing (Bingo, Board, boardParser, boardsParser, colsBingo, main, numbersParser, parse, puzzleInput, rowParser, rowsBingo, solution1, solution2, solve1, solve2, winner)
 
 import Html exposing (Html)
 import List.Extra as List
@@ -154,11 +154,7 @@ boardValue ( board, marked ) =
 
 hasBingo : List Int -> Board -> Bool
 hasBingo numbers board =
-    rowsBingo numbers board
-
-
-
---|| colsBingo numbers board
+    rowsBingo numbers board || colsBingo numbers board 0
 
 
 rowsBingo : List Int -> List (List Int) -> Bool
@@ -170,7 +166,7 @@ rowsBingo numbers rows =
         head :: tail ->
             let
                 hits =
-                    Debug.log "hits" <|
+                    Debug.log "hits row" <|
                         List.filter (\n -> List.member n numbers) head
             in
             if (hits |> List.length) == List.length head then
@@ -178,6 +174,27 @@ rowsBingo numbers rows =
 
             else
                 rowsBingo numbers tail
+
+
+colsBingo : List Int -> List (List Int) -> Int -> Bool
+colsBingo numbers rows pos =
+    if pos > 4 then
+        False
+
+    else
+        let
+            colValues =
+                List.map (List.getAt pos >> Maybe.withDefault 0) rows
+
+            hits =
+                Debug.log "hits col" <|
+                    List.filter (\n -> List.member n numbers) colValues
+        in
+        if (hits |> List.length) == List.length colValues then
+            True
+
+        else
+            colsBingo numbers rows (pos + 1)
 
 
 solve2 : Bingo -> Int

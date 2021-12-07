@@ -27,8 +27,18 @@ suite =
                             |> Expect.equal False
                 , test "bingo" <|
                     \_ ->
-                        Day4.rowsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 7, 8, 9, 10 ], [ 12, 1, 3, 4, 5 ] ]
+                        Day4.rowsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 7, 8, 9, 10 ], [ 2, 1, 3, 4, 5 ] ]
+                            |> Expect.equal True
+                ]
+            , describe "Cols bingo"
+                [ test "No bingo" <|
+                    \_ ->
+                        Day4.colsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 7, 8, 9, 10 ], [ 11, 12, 13, 14, 15 ] ] 0
                             |> Expect.equal False
+                , test "bingo" <|
+                    \_ ->
+                        Day4.colsBingo [ 1, 2, 3, 4, 5 ] [ [ 6, 2, 8, 9, 10 ], [ 12, 1, 3, 4, 5 ] ] 0
+                            |> Expect.equal True
                 ]
             , describe "Winner board"
                 [ test "Simple" <|
