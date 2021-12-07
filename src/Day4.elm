@@ -110,14 +110,40 @@ rowParser =
 
 solve1 : Bingo -> Int
 solve1 bingo =
-    winner bingo 0 |> boardValue
+    case winner bingo 1 of
+        Just ( b, l ) ->
+            boardValue ( b, l )
+
+        Nothing ->
+            Debug.todo "No wining board"
+
+
+
+-- Find the last board to win. i e that needs the most number of numbers.
+
+
+solve2 : Bingo -> Int
+solve2 bingo =
+    let
+        lastBoard =
+            bingo.boards
+                |> List.map (\b -> winner { boards = [ b ], numbers = bingo.numbers } 0)
+                |> List.filterMap identity
+                |> List.sortWith (\( _, l1 ) ( _, l2 ) -> compare (List.length l2) (List.length l1))
+    in
+    case List.head lastBoard of
+        Just board ->
+            boardValue board
+
+        Nothing ->
+            Debug.todo "No winner"
 
 
 
 -- Which board can do we the fewest numbers for a bingo?
 
 
-winner : Bingo -> Int -> ( Board, List Int )
+winner : Bingo -> Int -> Maybe ( Board, List Int )
 winner bingo pos =
     let
         currentNumbers =
@@ -126,12 +152,16 @@ winner bingo pos =
         winningBoards =
             List.filter (\b -> hasBingo currentNumbers b) bingo.boards
     in
-    case List.head winningBoards of
-        Just board ->
-            ( board, currentNumbers )
+    if pos > List.length bingo.numbers then
+        Nothing
 
-        Nothing ->
-            winner bingo (pos + 1)
+    else
+        case List.head winningBoards of
+            Just board ->
+                Just ( board, currentNumbers )
+
+            Nothing ->
+                winner bingo (pos + 1)
 
 
 boardValue : ( Board, List Int ) -> Int
@@ -166,8 +196,7 @@ rowsBingo numbers rows =
         head :: tail ->
             let
                 hits =
-                    Debug.log "hits row" <|
-                        List.filter (\n -> List.member n numbers) head
+                    List.filter (\n -> List.member n numbers) head
             in
             if (hits |> List.length) == List.length head then
                 True
@@ -187,19 +216,13 @@ colsBingo numbers rows pos =
                 List.map (List.getAt pos >> Maybe.withDefault 0) rows
 
             hits =
-                Debug.log "hits col" <|
-                    List.filter (\n -> List.member n numbers) colValues
+                List.filter (\n -> List.member n numbers) colValues
         in
         if (hits |> List.length) == List.length colValues then
             True
 
         else
             colsBingo numbers rows (pos + 1)
-
-
-solve2 : Bingo -> Int
-solve2 bingo =
-    4711
 
 
 main : Html Never

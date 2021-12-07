@@ -42,7 +42,7 @@ suite =
                 ]
             , describe "Winner board"
                 [ test "Simple" <|
-                    \_ -> Day4.winner winner1 0 |> Expect.equal ( board1, [ 1, 2, 3, 4, 5, 6 ] )
+                    \_ -> Day4.winner winner1 0 |> Expect.equal (Just ( board1, [ 1, 2, 3, 4, 5, 6 ] ))
                 ]
             , test "As given" <|
                 \_ -> Day4.solution1 testInput |> Expect.equal 4512
@@ -51,9 +51,9 @@ suite =
             ]
         , describe "Problem 2"
             [ test "As given" <|
-                \_ -> Day4.solution2 testInput |> Expect.equal -1
+                \_ -> Day4.solution2 testInput |> Expect.equal 1924
             , test "From puzzle input" <|
-                \_ -> Day4.solution2 Day4.puzzleInput |> Expect.equal -1
+                \_ -> Day4.solution2 Day4.puzzleInput |> Expect.equal 4590
             ]
         ]
 
