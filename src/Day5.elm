@@ -1,4 +1,4 @@
-module Day5 exposing (..)
+module Day5 exposing (EndPoint, Plan, endPointParser, equation, main, parse, planParser, puzzleInput, solution1, solution2, solve1, solve2)
 
 import Html exposing (Html)
 import Parser exposing ((|.), (|=), Parser, Trailing(..), int, spaces, succeed, symbol)
@@ -70,6 +70,24 @@ solve1 _ =
 solve2 : Plan -> Int
 solve2 _ =
     4711
+
+
+
+{-
+   y1 = kx1 + m
+   y2 = kx2 + m
+   m = y2 - kx2
+   k = abs (y1 - y2) / abs(x1 - x2)
+-}
+
+
+equation : { x1 : Int, y1 : Int, x2 : Int, y2 : Int } -> { k : Int, m : Int }
+equation p =
+    let
+        k =
+            Basics.abs (p.y1 - p.y2) // Basics.abs (p.x1 - p.x2)
+    in
+    { k = k, m = p.y2 - k * p.x2 }
 
 
 main : Html Never
