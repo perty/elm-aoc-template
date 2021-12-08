@@ -37,14 +37,14 @@ testInput =
 
 
 testInputParsed =
-    [ Day5.EndPoint 0 9 5 9
-    , Day5.EndPoint 8 0 0 8
-    , Day5.EndPoint 9 4 3 4
-    , Day5.EndPoint 2 2 2 1
-    , Day5.EndPoint 7 0 7 4
-    , Day5.EndPoint 6 4 2 0
-    , Day5.EndPoint 0 9 2 9
-    , Day5.EndPoint 3 4 1 4
-    , Day5.EndPoint 0 0 8 8
-    , Day5.EndPoint 5 5 8 2
+    [ Day5.VentLine 0 9 5 9
+    , Day5.VentLine 8 0 0 8
+    , Day5.VentLine 9 4 3 4
+    , Day5.VentLine 2 2 2 1
+    , Day5.VentLine 7 0 7 4
+    , Day5.VentLine 6 4 2 0
+    , Day5.VentLine 0 9 2 9
+    , Day5.VentLine 3 4 1 4
+    , Day5.VentLine 0 0 8 8
+    , Day5.VentLine 5 5 8 2
     ]
