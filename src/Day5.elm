@@ -1,7 +1,10 @@
 module Day5 exposing (EndPoint, Plan, endPointParser, equation, main, parse, planParser, puzzleInput, solution1, solution2, solve1, solve2)
 
+import Array
 import Dict exposing (Dict)
 import Html exposing (Html)
+import List.Extra as List
+import Matrix
 import Parser exposing ((|.), (|=), Parser, Trailing(..), int, spaces, succeed, symbol)
 import Parser.Extras
 
@@ -69,41 +72,50 @@ solve1 vents =
         straightLines =
             List.filter (\line -> line.x1 == line.x2 || line.y1 == line.y2) vents
 
+        matrix =
+            Matrix.initialize 1000 1000 (\_ _ -> 0)
+
         markedPoints =
-            List.foldl addPointsToDict Dict.Extra. empty straightLines
+            List.foldl addPointsToPlan matrix straightLines
     in
-    42
+    Array.foldl Array.foldl
 
 
-type alias P =
-    Dict Int (Dict Int Int)
-
-
-addPointsToDict : VentLine ->(Dict (Int, Int) Int) -> Dict Int (Dict Int Int)
-addPointsToDict ventLine acc =
-    let
-        points =
-            pointsOnLine ventLine
-
-        addToDict x y = Dict.get x acc |> Dict.get y |> Maybe.withDefault 0
-    in
-    List.foldl (\p a -> Dict.insert p.x (Dict.insert p.y 0)) acc points
-
-
-pointsOnLine : VentLine -> List { x : Int, y : Int }
-pointsOnLine ventLine =
-    if ventLine.x1 == ventLine.x2 then
-        List.range ventLine.y1 ventLine.y2
-            |> List.map (\n -> { x = ventLine.x1, y = n })
-
-    else
-        List.range ventLine.x1 ventLine.x2
-            |> List.map (\n -> { x = n, y = ventLine.y2 })
+foldl : (a -> b -> b) -> b -> (b -> b) -> Matrix.Matrix a -> b
+foldl function acc accJoin matrix =
+    matrix |> Array.foldl (\co ao -> accJoin co ao) acc (Array.foldl (\c b -> function c acc))
 
 
 solve2 : Vents -> Int
 solve2 _ =
     4711
+
+
+addPointsToPlan : VentLine -> Matrix.Matrix Int -> Matrix.Matrix Int
+addPointsToPlan ventLine acc =
+    let
+        points =
+            pointsOnLine ventLine
+
+        currentValue m p =
+            Matrix.get m p.x p.y |> Maybe.withDefault 0
+
+        increment m p =
+            Matrix.set m p.x p.y (currentValue m p + 1)
+    in
+    List.foldl (\p m -> increment m p) acc points
+
+
+pointsOnLine : VentLine -> List { x : Int, y : Int }
+pointsOnLine ventLine =
+    let
+        lineEq =
+            equation ventLine
+
+        xs =
+            List.range (Basics.min ventLine.x1 ventLine.x2) (Basics.max ventLine.x1 ventLine.x2)
+    in
+    List.map (\x -> { x = x, y = lineEq.k * x + lineEq.m }) xs
 
 
 
