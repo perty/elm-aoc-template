@@ -1,5 +1,6 @@
 module Day6 exposing
-    ( main
+    ( buckets
+    , main
     , model
     , parse
     , puzzleInput
@@ -9,6 +10,7 @@ module Day6 exposing
     , solve2
     )
 
+import Array exposing (Array)
 import Html exposing (Html)
 import Parser exposing ((|=), Parser, Trailing(..), int, spaces, succeed)
 
@@ -56,8 +58,45 @@ solve1 ints =
 
 
 solve2 : List Int -> Int
-solve2 _ =
-    4711
+solve2 ints =
+    let
+        bucketsArray =
+            intoBuckets ints (Array.initialize 9 (\_ -> 0))
+    in
+    buckets 256 bucketsArray
+
+
+intoBuckets : List Int -> Array Int -> Array Int
+intoBuckets ints current =
+    case ints of
+        [] ->
+            current
+
+        head :: tail ->
+            let
+                bucket =
+                    Array.get head current |> Maybe.withDefault 0
+            in
+            intoBuckets tail (Array.set head (bucket + 1) current)
+
+
+buckets : Int -> Array Int -> Int
+buckets days current =
+    if days == 0 then
+        Array.foldl (+) 0 current
+
+    else
+        let
+            zeroBucket =
+                Array.get 0 current |> Maybe.withDefault 0
+
+            rotated =
+                Array.slice 1 9 current |> Array.push zeroBucket
+
+            mature =
+                Array.get 6 rotated |> Maybe.withDefault 0
+        in
+        buckets (days - 1) (Array.set 6 (mature + zeroBucket) rotated)
 
 
 model : List Int -> Int -> Int
