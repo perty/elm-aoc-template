@@ -10,7 +10,6 @@ module Day6 exposing
     )
 
 import Html exposing (Html)
-import List.Extra as List
 import Parser exposing ((|=), Parser, Trailing(..), int, spaces, succeed)
 
 
@@ -54,9 +53,6 @@ parseInts =
 solve1 : List Int -> Int
 solve1 ints =
     model ints 80
-        |> List.last
-        |> Maybe.withDefault []
-        |> List.length
 
 
 solve2 : List Int -> Int
@@ -64,10 +60,10 @@ solve2 _ =
     4711
 
 
-model : List Int -> Int -> List (List Int)
+model : List Int -> Int -> Int
 model current days =
     if days <= 0 then
-        [ current ]
+        List.length current
 
     else
         let
@@ -84,7 +80,7 @@ model current days =
             nextDay =
                 List.append (List.map tick current) (List.repeat parents 8)
         in
-        current :: model nextDay (days - 1)
+        model nextDay (days - 1)
 
 
 main : Html Never
