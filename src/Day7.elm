@@ -46,6 +46,17 @@ fuelCost target starts =
         |> Array.foldl (+) 0
 
 
+fuelCost2 : Int -> Array Int -> Int
+fuelCost2 target starts =
+    let
+        serie b =
+            b * (1 + b) // 2
+    in
+    starts
+        |> Array.map (\p -> serie (Basics.abs (p - target)))
+        |> Array.foldl (+) 0
+
+
 solve2 : List Int -> Int
 solve2 _ =
     4711
