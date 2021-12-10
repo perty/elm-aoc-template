@@ -1,7 +1,17 @@
 module Day8 exposing (..)
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, Trailing(..), getChompedString, spaces, succeed, πchompWhile)
+import Parser
+    exposing
+        ( (|.)
+        , (|=)
+        , Parser
+        , Trailing(..)
+        , chompWhile
+        , getChompedString
+        , spaces
+        , succeed
+        )
 import Parser.Extras
 
 
