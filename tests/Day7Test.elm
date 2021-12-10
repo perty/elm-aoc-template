@@ -1,6 +1,5 @@
 module Day7Test exposing (..)
 
-import Array
 import Day7
 import Expect exposing (Expectation)
 import Test exposing (..)
@@ -19,9 +18,11 @@ suite =
             ]
         , describe "Problem 2"
             [ test "Fuel cost 2" <|
-                \_ -> Day7.fuelCost2 5 (Array.fromList [ 10 ]) |> Expect.equal (1 + 2 + 3 + 4 + 5)
+                \_ -> Day7.fuelCost2 5 10 |> Expect.equal (1 + 2 + 3 + 4 + 5)
             , test "As given" <|
-                \_ -> Day7.solution2 testInput |> Expect.equal -1
+                \_ -> Day7.solution2 testInput |> Expect.equal 168
+            , test "From puzzle input" <|
+                \_ -> Day7.solution2 Day7.puzzleInput |> Expect.equal 101571302
             ]
         ]
 

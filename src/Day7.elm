@@ -46,20 +46,48 @@ fuelCost target starts =
         |> Array.foldl (+) 0
 
 
-fuelCost2 : Int -> Array Int -> Int
-fuelCost2 target starts =
+fuelCost2 : Int -> Int -> Int
+fuelCost2 target start =
     let
         serie b =
             b * (1 + b) // 2
     in
-    starts
-        |> Array.map (\p -> serie (Basics.abs (p - target)))
-        |> Array.foldl (+) 0
+    serie (Basics.abs (start - target))
 
 
 solve2 : List Int -> Int
-solve2 _ =
-    4711
+solve2 ints =
+    let
+        sorted =
+            List.sort ints |> Array.fromList
+    in
+    tryEach sorted
+
+
+tryEach : Array Int -> Int
+tryEach starts =
+    List.range 0 (Array.length starts)
+        |> List.foldl (\tryIndex lowest -> tryEachHelper tryIndex starts 0 lowest 0) 999999999999999999
+
+
+
+-- Try each pos in the array as long as it is lower than the lowest
+
+
+tryEachHelper : Int -> Array Int -> Int -> Int -> Int -> Int
+tryEachHelper tryIndex starts pos lowest accumulated =
+    let
+        try =
+            fuelCost2 tryIndex (Array.get pos starts |> Maybe.withDefault 0)
+    in
+    if pos >= Array.length starts then
+        accumulated
+
+    else if (try + accumulated) > lowest then
+        lowest
+
+    else
+        tryEachHelper tryIndex starts (pos + 1) lowest (try + accumulated)
 
 
 main : Html Never
