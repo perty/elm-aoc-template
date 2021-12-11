@@ -1,4 +1,4 @@
-module Day8 exposing (..)
+module Day8 exposing (Observation, alphaString, digitsParser, main, observationParser, parse, puzzleInput, signalParser, solution1, solution2, solve1, solve2)
 
 import Html exposing (Html)
 import Parser
@@ -90,8 +90,15 @@ alphaString =
 
 
 solve1 : List Observation -> Int
-solve1 _ =
-    42
+solve1 observations =
+    observations
+        |> List.map (\o -> o.digits |> List.filter (\d -> uniques d) |> List.length)
+        |> List.foldl (+) 0
+
+
+uniques : String -> Bool
+uniques string =
+    List.member (String.length string) [ 2, 4, 3, 7 ]
 
 
 solve2 : List Observation -> Int

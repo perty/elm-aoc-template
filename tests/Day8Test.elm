@@ -1,4 +1,4 @@
-module Day8Test exposing (..)
+module Day8Test exposing (suite, testInput, testInput4Parse, testInputParsed)
 
 import Day8
 import Expect exposing (Expectation)
@@ -14,7 +14,7 @@ suite =
             , test "As given" <|
                 \_ -> Day8.solution1 testInput |> Expect.equal 26
             , test "From puzzle input" <|
-                \_ -> Day8.solution1 Day8.puzzleInput |> Expect.equal -1
+                \_ -> Day8.solution1 Day8.puzzleInput |> Expect.equal 534
             ]
         , describe "Problem 2"
             [ test "As given" <|
