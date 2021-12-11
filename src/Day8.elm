@@ -1,5 +1,6 @@
-module Day8 exposing (Observation, alphaString, digitsParser, main, observationParser, parse, puzzleInput, signalParser, solution1, solution2, solve1, solve2)
+module Day8 exposing (Observation, alphaString, digitsParser, main, observationParser, observationValue, parse, puzzleInput, signalParser, solution1, solution2, solve1, solve2)
 
+import Dict
 import Html exposing (Html)
 import Parser
     exposing
@@ -13,6 +14,7 @@ import Parser
         , succeed
         )
 import Parser.Extras
+import Set
 
 
 solution1 : String -> Int
@@ -102,8 +104,129 @@ uniques string =
 
 
 solve2 : List Observation -> Int
-solve2 _ =
-    4711
+solve2 observations =
+    observations
+        |> List.map observationValue
+        |> List.foldl (+) 0
+
+
+
+{-
+      s1
+   s2    s3
+      s4
+   s5    s6
+      s7
+-}
+
+
+observationValue : Observation -> Int
+observationValue observation =
+    let
+        sortedSignals =
+            observation.signalPatterns |> List.map (String.toList >> List.sort >> String.fromList)
+
+        head =
+            List.head >> Maybe.withDefault ""
+
+        ofLength n =
+            withLength n
+                |> head
+
+        withLength n =
+            List.filter (\s -> String.length s == n) sortedSignals
+
+        zero =
+            withLength 6
+                |> List.filter (contains s1)
+                |> List.filter (\s -> s /= nine)
+                |> List.filter (\s -> s /= six)
+                |> head
+
+        one =
+            ofLength 2
+
+        two =
+            withLength 5
+                |> List.filter (contains s3)
+                |> List.filter (contains three >> not)
+                |> head
+
+        three =
+            withLength 5
+                |> List.filter (contains one)
+                |> head
+
+        four =
+            ofLength 4
+
+        five =
+            withLength 5
+                |> List.filter (contains one >> not)
+                |> List.filter (contains s3 >> not)
+                |> head
+
+        six =
+            withLength 6
+                |> List.filter (contains one >> not)
+                |> head
+
+        seven =
+            ofLength 3
+
+        eight =
+            ofLength 7
+
+        nine =
+            withLength 6
+                |> List.filter (\s -> contains seven s && contains four s)
+                |> head
+
+        s1 =
+            stringDiff seven one
+
+        s3 =
+            stringDiff eight six
+
+        stringDiff a b =
+            Set.diff (stringToSet a) (stringToSet b)
+                |> Set.toList
+                |> String.fromList
+
+        stringToSet =
+            String.toList >> Set.fromList
+
+        contains a b =
+            Set.intersect (stringToSet a) (stringToSet b) == stringToSet a
+
+        dict =
+            Dict.fromList
+                [ ( zero, '0' )
+                , ( one, '1' )
+                , ( two, '2' )
+                , ( three, '3' )
+                , ( four, '4' )
+                , ( five, '5' )
+                , ( six, '6' )
+                , ( seven, '7' )
+                , ( eight, '8' )
+                , ( nine, '9' )
+                ]
+
+        translate s =
+            case Dict.get s dict of
+                Just a ->
+                    a
+
+                Nothing ->
+                    Debug.todo ("failed translate " ++ s)
+    in
+    observation.digits
+        |> List.map (String.toList >> List.sort >> String.fromList)
+        |> List.map (\s -> translate s)
+        |> String.fromList
+        |> String.toInt
+        |> Maybe.withDefault -1
 
 
 main : Html Never

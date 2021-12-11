@@ -18,9 +18,16 @@ suite =
             ]
         , describe "Problem 2"
             [ test "As given" <|
-                \_ -> Day8.solution2 testInput |> Expect.equal -1
+                \_ -> Day8.solution2 testInput |> Expect.equal 61229
+            , test "Convert to observation value" <|
+                \_ ->
+                    Day8.observationValue
+                        { signalPatterns = [ "bdfegc", "cbegaf", "gecbf", "dfcage", "bdacg", "ed", "bedf", "ced", "adcbefg", "gebcd" ]
+                        , digits = [ "ed", "bcgafe", "cdgba", "cbgef" ]
+                        }
+                        |> Expect.equal 1625
             , test "From puzzle input" <|
-                \_ -> Day8.solution2 Day8.puzzleInput |> Expect.equal -1
+                \_ -> Day8.solution2 Day8.puzzleInput |> Expect.equal 1070188
             ]
         ]
 
