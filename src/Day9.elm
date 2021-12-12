@@ -1,8 +1,9 @@
-module Day9 exposing (main, parse, puzzleInput, solution1, solution2, solve1, solve2)
+module Day9 exposing (basinSize, main, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
 import Array exposing (Array)
 import Html exposing (Html)
 import Matrix exposing (Matrix)
+import Set exposing (Set)
 
 
 solution1 : String -> Int
@@ -68,6 +69,59 @@ foldl function acc accJoin matrix =
 solve2 : Matrix Int -> Int
 solve2 _ =
     4711
+
+
+basinSize : Int -> Int -> Matrix Int -> Int
+basinSize row col matrix =
+    helper Set.empty row col matrix
+        |> Set.size
+
+
+helper : Set ( Int, Int ) -> Int -> Int -> Matrix Int -> Set ( Int, Int )
+helper acc row col matrix =
+    let
+        down =
+            search acc (\( row1, col1 ) -> ( row1 + 1, col1 )) ( row, col ) matrix
+
+        up =
+            search acc (\( row1, col1 ) -> ( row1 - 1, col1 )) ( row, col ) matrix
+
+        right =
+            search acc (\( row1, col1 ) -> ( row1, col1 + 1 )) ( row, col ) matrix
+
+        left =
+            search acc (\( row1, col1 ) -> ( row1, col1 - 1 )) ( row, col ) matrix
+    in
+    Set.union down up |> Set.union right |> Set.union left
+
+
+search : Set ( Int, Int ) -> (( Int, Int ) -> ( Int, Int )) -> ( Int, Int ) -> Matrix Int -> Set ( Int, Int )
+search visited func ( row, col ) matrix =
+    let
+        ( row2, col2 ) =
+            func ( row, col )
+    in
+    if Set.member ( row2, col2 ) visited then
+        Set.empty
+
+    else
+        case Matrix.get matrix row2 col2 of
+            Just value ->
+                if value > 8 then
+                    Set.empty
+
+                else
+                    let
+                        newVisited =
+                            Set.insert ( row2, col2 ) visited
+
+                        result =
+                            Debug.log "result" (Set.insert ( row2, col2 ) (helper newVisited row2 col2 matrix))
+                    in
+                    result
+
+            Nothing ->
+                Set.empty
 
 
 main : Html Never
