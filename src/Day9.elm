@@ -39,30 +39,25 @@ toInts string =
 solve1 : Matrix Int -> Int
 solve1 matrix =
     let
+        lowPoint : Int -> Int -> Int -> Int
+        lowPoint x y e =
+            let
+                lower =
+                    Matrix.neighbours matrix x y
+                        |> Array.map (Maybe.withDefault 10)
+                        |> Array.filter (\v -> v < e)
+                        |> Array.length
+            in
+            if lower == 0 then
+                e + 1
+
+            else
+                0
+
         lows =
-            Array.indexedMap
-                (\x array ->
-                    Array.indexedMap (\y e -> lowPoint matrix x y e) array
-                )
-                matrix
+            Matrix.indexedMap lowPoint matrix
     in
     foldl (+) 0 (+) lows
-
-
-lowPoint : Matrix Int -> Int -> Int -> Int -> Int
-lowPoint matrix x y e =
-    let
-        length =
-            Matrix.neighbours matrix x y
-                |> Array.map (Maybe.withDefault 10)
-                |> Array.filter (\v -> v < e)
-                |> Array.length
-    in
-    if 0 == length then
-        e + 1
-
-    else
-        0
 
 
 foldl : (a -> b -> b) -> b -> (b -> b -> b) -> Matrix.Matrix a -> b
