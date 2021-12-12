@@ -1,22 +1,8 @@
 module Day9 exposing (main, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
 import Array exposing (Array)
-import Dict
 import Html exposing (Html)
 import Matrix exposing (Matrix)
-import Parser
-    exposing
-        ( (|.)
-        , (|=)
-        , Parser
-        , Trailing(..)
-        , chompWhile
-        , getChompedString
-        , spaces
-        , succeed
-        )
-import Parser.Extras
-import Set
 
 
 solution1 : String -> Int
@@ -51,8 +37,37 @@ toInts string =
 
 
 solve1 : Matrix Int -> Int
-solve1 _ =
-    42
+solve1 matrix =
+    let
+        lows =
+            Array.indexedMap
+                (\x array ->
+                    Array.indexedMap (\y e -> lowPoint matrix x y e) array
+                )
+                matrix
+    in
+    foldl (+) 0 (+) lows
+
+
+lowPoint : Matrix Int -> Int -> Int -> Int -> Int
+lowPoint matrix x y e =
+    let
+        length =
+            Matrix.neighbours matrix x y
+                |> Array.map (Maybe.withDefault 10)
+                |> Array.filter (\v -> v < e)
+                |> Array.length
+    in
+    if 0 == length then
+        e + 1
+
+    else
+        0
+
+
+foldl : (a -> b -> b) -> b -> (b -> b -> b) -> Matrix.Matrix a -> b
+foldl function acc accJoin matrix =
+    Array.foldl (\ma a -> Array.foldl function acc ma |> accJoin a) acc matrix
 
 
 solve2 : Matrix Int -> Int
