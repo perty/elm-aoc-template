@@ -16,8 +16,9 @@ suite =
                 \_ -> Day6.solution1 testInput |> Expect.equal 5934
             , test "As given using buckets" <|
                 \_ -> Day6.buckets 80 testInputBuckets |> Expect.equal 5934
-            , test "From puzzle input" <|
-                \_ -> Day6.solution1 Day6.puzzleInput |> Expect.equal 363101
+            , skip <|
+                test "From puzzle input" <|
+                    \_ -> Day6.solution1 Day6.puzzleInput |> Expect.equal 363101
             ]
         , describe "Problem 2"
             [ test "As given" <|
