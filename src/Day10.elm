@@ -1,7 +1,7 @@
 module Day10 exposing (..)
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, Trailing(..), chompIf, getChompedString, oneOf, succeed)
+import Parser exposing ((|.), (|=), Parser, Trailing(..), chompIf, getChompedString, oneOf, problem, succeed)
 
 
 solution1 : String -> Int
@@ -18,9 +18,16 @@ solution2 input =
         |> solve2
 
 
+type Paren
+    = Parenthesis
+    | Braces
+    | Square
+    | Hook
+
+
 type Symbol
-    = Open String
-    | Close String
+    = Open Paren
+    | Close Paren
 
 
 parse : String -> List (List Symbol)
@@ -66,11 +73,44 @@ parseSymbol =
         ]
 
 
-parseChar : List Char -> Parser String
+parseChar : List Char -> Parser Paren
 parseChar symbols =
-    getChompedString <|
+    (getChompedString <|
         succeed ()
             |. chompIf (\c -> List.member c symbols)
+    )
+        |> Parser.andThen parseParen
+
+
+parseParen : String -> Parser Paren
+parseParen s =
+    case s of
+        "(" ->
+            succeed Parenthesis
+
+        ")" ->
+            succeed Parenthesis
+
+        "{" ->
+            succeed Braces
+
+        "}" ->
+            succeed Braces
+
+        "[" ->
+            succeed Square
+
+        "]" ->
+            succeed Square
+
+        "<" ->
+            succeed Hook
+
+        ">" ->
+            succeed Hook
+
+        _ ->
+            problem (s ++ " is not know")
 
 
 solve1 : List (List Symbol) -> Int
@@ -81,6 +121,10 @@ solve1 symbols =
 
 s1Help : Maybe Symbol -> List Symbol -> Int
 s1Help open symbols =
+    let
+        _ =
+            Debug.log "helper open" open
+    in
     case symbols of
         [] ->
             0
@@ -106,23 +150,20 @@ s1Help open symbols =
                             0
 
 
-score : String -> Int
-score string =
-    case string of
-        ")" ->
+score : Paren -> Int
+score paren =
+    case paren of
+        Parenthesis ->
             3
 
-        "]" ->
+        Square ->
             57
 
-        "}" ->
+        Braces ->
             1197
 
-        ">" ->
+        Hook ->
             25137
-
-        _ ->
-            Debug.todo <| "impossible char " ++ string
 
 
 solve2 : List (List Symbol) -> Int
