@@ -2,6 +2,7 @@ module Day9 exposing (basinSize, main, parse, puzzleInput, solution1, solution2,
 
 import Array exposing (Array)
 import Html exposing (Html)
+import List.Extra as List
 import Matrix exposing (Matrix)
 import Set exposing (Set)
 
@@ -67,14 +68,58 @@ foldl function acc accJoin matrix =
 
 
 solve2 : Matrix Int -> Int
-solve2 _ =
-    4711
+solve2 matrix =
+    let
+        lowPoint : Int -> Int -> Int -> Int
+        lowPoint x y e =
+            let
+                lower =
+                    Matrix.neighbours matrix x y
+                        |> Array.map (Maybe.withDefault 10)
+                        |> Array.filter (\v -> v < e)
+                        |> Array.length
+            in
+            if lower == 0 then
+                basinSize x y matrix
+
+            else
+                0
+
+        lows =
+            Matrix.indexedMap lowPoint matrix
+
+        sizes =
+            basinSizes lows
+    in
+    (List.getAt 0 sizes |> Maybe.withDefault 1)
+        * (List.getAt 1 sizes |> Maybe.withDefault 1)
+        * (List.getAt 2 sizes |> Maybe.withDefault 1)
+
+
+basinSizes : Matrix Int -> List Int
+basinSizes basins =
+    filter (\v -> v > 0) basins
+        |> joinRows
+        |> Array.toList
+        |> List.sort
+        |> List.reverse
+
+
+filter : (Int -> Bool) -> Matrix Int -> Matrix Int
+filter fun matrix =
+    Array.map (\a -> Array.filter fun a) matrix
+
+
+joinRows : Matrix Int -> Array Int
+joinRows matrix =
+    Array.foldl (\a acc -> Array.append acc a) Array.empty matrix
 
 
 basinSize : Int -> Int -> Matrix Int -> Int
 basinSize row col matrix =
     helper Set.empty row col matrix
         |> Set.size
+        |> (+) 1
 
 
 helper : Set ( Int, Int ) -> Int -> Int -> Matrix Int -> Set ( Int, Int )
@@ -100,6 +145,9 @@ search visited func ( row, col ) matrix =
     let
         ( row2, col2 ) =
             func ( row, col )
+
+        currentValue =
+            Matrix.get matrix row col |> Maybe.withDefault -1
     in
     if Set.member ( row2, col2 ) visited then
         Set.empty
@@ -107,18 +155,15 @@ search visited func ( row, col ) matrix =
     else
         case Matrix.get matrix row2 col2 of
             Just value ->
-                if value > 8 then
+                if value == 9 || value < currentValue then
                     Set.empty
 
                 else
                     let
                         newVisited =
                             Set.insert ( row2, col2 ) visited
-
-                        result =
-                            Debug.log "result" (Set.insert ( row2, col2 ) (helper newVisited row2 col2 matrix))
                     in
-                    result
+                    Set.insert ( row2, col2 ) (helper newVisited row2 col2 matrix)
 
             Nothing ->
                 Set.empty
