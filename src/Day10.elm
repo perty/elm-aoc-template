@@ -74,8 +74,55 @@ parseChar symbols =
 
 
 solve1 : List (List Symbol) -> Int
-solve1 _ =
-    44
+solve1 symbols =
+    List.map (\l -> s1Help Nothing l) symbols
+        |> List.foldl (+) 0
+
+
+s1Help : Maybe Symbol -> List Symbol -> Int
+s1Help open symbols =
+    case symbols of
+        [] ->
+            0
+
+        head :: tail ->
+            case head of
+                Open _ ->
+                    s1Help (Just head) tail
+
+                Close c ->
+                    case open of
+                        Just (Open o) ->
+                            if c == o then
+                                0
+
+                            else
+                                score c
+
+                        Just (Close x) ->
+                            Debug.todo "close as parameter 1"
+
+                        Nothing ->
+                            0
+
+
+score : String -> Int
+score string =
+    case string of
+        ")" ->
+            3
+
+        "]" ->
+            57
+
+        "}" ->
+            1197
+
+        ">" ->
+            25137
+
+        _ ->
+            Debug.todo <| "impossible char " ++ string
 
 
 solve2 : List (List Symbol) -> Int

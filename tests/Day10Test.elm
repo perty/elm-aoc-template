@@ -12,7 +12,7 @@ suite =
             [ test "Parser" <|
                 \_ -> Day10.parse parseTest |> Expect.equal parseTestResult
             , test "As given" <|
-                \_ -> Day10.solution1 testInput |> Expect.equal -1
+                \_ -> Day10.solution1 testInput |> Expect.equal 26397
             , test "From puzzle input" <|
                 \_ -> Day10.solution1 Day10.puzzleInput |> Expect.equal -1
             ]
