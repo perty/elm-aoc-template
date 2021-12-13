@@ -26,6 +26,7 @@ type Symbol
 parse : String -> List (List Symbol)
 parse string =
     string
+        |> String.trim
         |> String.lines
         |> List.map parseLine
 

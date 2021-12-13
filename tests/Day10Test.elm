@@ -1,6 +1,6 @@
 module Day10Test exposing (..)
 
-import Day10
+import Day10 exposing (Symbol(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
 
@@ -10,7 +10,7 @@ suite =
     describe "Day10"
         [ describe "Problem 1"
             [ test "Parser" <|
-                \_ -> Day10.parse testInput |> Expect.equal testInputAsInts
+                \_ -> Day10.parse parseTest |> Expect.equal parseTestResult
             , test "As given" <|
                 \_ -> Day10.solution1 testInput |> Expect.equal -1
             , test "From puzzle input" <|
@@ -40,5 +40,36 @@ testInput =
     """
 
 
-testInputAsInts =
-    []
+parseTest =
+    """
+    [({(<(())[]>[[{[]{<()<>>
+    """
+
+
+parseTestResult =
+    [ [ Open "["
+      , Open "("
+      , Open "{"
+      , Open "("
+      , Open "<"
+      , Open "("
+      , Open "("
+      , Close ")"
+      , Close ")"
+      , Open "["
+      , Close "]"
+      , Close ">"
+      , Open "["
+      , Open "["
+      , Open "{"
+      , Open "["
+      , Close "]"
+      , Open "{"
+      , Open "<"
+      , Open "("
+      , Close ")"
+      , Open "<"
+      , Close ">"
+      , Close ">"
+      ]
+    ]
