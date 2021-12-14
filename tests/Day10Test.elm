@@ -1,4 +1,4 @@
-module Day10Test exposing (..)
+module Day10Test exposing (parseTest, parseTestResult, singleLineTest, suite, testInput)
 
 import Day10 exposing (Paren(..), Symbol(..))
 import Expect exposing (Expectation)
@@ -9,11 +9,10 @@ suite : Test
 suite =
     describe "Day10"
         [ describe "Problem 1"
-            [ test "Parser" <|
-                \_ -> Day10.parse parseTest |> Expect.equal parseTestResult
-            , only <|
-                test "Single line" <|
-                    \_ -> Day10.solution1 singleLineTest |> Expect.equal 26397
+            [ test "Chunk Parser" <|
+                \_ -> Day10.chunkParse parseTest |> Expect.equal 25137
+            , test "Single line" <|
+                \_ -> Day10.solution1 singleLineTest |> Expect.equal 26397
             , test "As given" <|
                 \_ -> Day10.solution1 testInput |> Expect.equal 26397
             , test "From puzzle input" <|
@@ -45,7 +44,7 @@ testInput =
 
 parseTest =
     """
-    [({(<(())[]>[[{[]{<()<>>
+[<><><]
     """
 
 

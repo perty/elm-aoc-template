@@ -1,7 +1,8 @@
-module Day10 exposing (..)
+module Day10 exposing (Paren(..), Symbol(..), chunkParse, main, parse, parseChar, parseLine, parseParen, parseSymbol, puzzleInput, s1Help, score, solution1, solution2, solve1, solve2)
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, Trailing(..), chompIf, getChompedString, oneOf, problem, succeed)
+import Parser exposing ((|.), (|=), Parser, Problem(..), Trailing(..), chompIf, getChompedString, lazy, oneOf, problem, succeed, symbol)
+import Parser.Extras
 
 
 solution1 : String -> Int
@@ -36,6 +37,81 @@ parse string =
         |> String.trim
         |> String.lines
         |> List.map parseLine
+
+
+type Chunk
+    = Chunk
+
+
+chunkParse : String -> Int
+chunkParse string =
+    let
+        trimmed =
+            String.trim string
+    in
+    case Parser.run chunkParser trimmed of
+        Ok Chunk ->
+            0
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "parse error" error
+
+                len =
+                    Debug.log "string len" (String.length trimmed)
+            in
+            case List.head error of
+                Just e ->
+                    if e.col > len then
+                        0
+
+                    else
+                        case e.problem of
+                            ExpectingSymbol ")" ->
+                                3
+
+                            ExpectingSymbol "]" ->
+                                57
+
+                            ExpectingSymbol "}" ->
+                                1197
+
+                            ExpectingSymbol ">" ->
+                                25137
+
+                            _ ->
+                                Debug.todo "parse failed"
+
+                Nothing ->
+                    Debug.todo "parse failed"
+
+
+chunkParser : Parser Chunk
+chunkParser =
+    oneOf
+        [ succeed Chunk
+            |. symbol "("
+            |. lazy (\_ -> chunks)
+            |. symbol ")"
+        , succeed Chunk
+            |. symbol "["
+            |. lazy (\_ -> chunks)
+            |. symbol "]"
+        , succeed Chunk
+            |. symbol "{"
+            |. lazy (\_ -> chunks)
+            |. symbol "}"
+        , succeed Chunk
+            |. symbol "<"
+            |. lazy (\_ -> chunks)
+            |. symbol ">"
+        ]
+
+
+chunks : Parser (List Chunk)
+chunks =
+    Parser.Extras.many chunkParser
 
 
 parseLine : String -> List Symbol
@@ -143,7 +219,7 @@ s1Help open symbols =
                             else
                                 score c
 
-                        Just (Close x) ->
+                        Just (Close _) ->
                             Debug.todo "close as parameter 1"
 
                         Nothing ->
