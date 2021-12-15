@@ -1,7 +1,5 @@
 module Day10 exposing
-    ( Paren(..)
-    , Symbol(..)
-    , chunkParse
+    ( chunkParse
     , main
     , parse
     , puzzleInput
@@ -29,16 +27,8 @@ solution2 input =
         |> solve2
 
 
-type Paren
-    = Parenthesis
-    | Braces
-    | Square
-    | Hook
-
-
-type Symbol
-    = Open Paren
-    | Close Paren
+type Chunk
+    = Chunk
 
 
 parse : String -> List Int
@@ -47,21 +37,39 @@ parse string =
         |> String.trim
         |> String.lines
         |> List.map chunkParse
+        |> List.map score
 
 
-type Chunk
-    = Chunk
+score c =
+    case c of
+        ')' ->
+            3
+
+        ']' ->
+            57
+
+        '}' ->
+            1197
+
+        '>' ->
+            25137
+
+        _ ->
+            0
 
 
-chunkParse : String -> Int
+chunkParse : String -> Char
 chunkParse string =
     let
         trimmed =
             String.trim string
+
+        default =
+            '?'
     in
     case Parser.run chunkParser trimmed of
         Ok Chunk ->
-            0
+            default
 
         Err error ->
             let
@@ -74,31 +82,17 @@ chunkParse string =
             case List.head error of
                 Just e ->
                     if e.col > len then
-                        0
+                        default
 
                     else
                         case e.problem of
                             ExpectingSymbol _ ->
                                 case String.toList trimmed |> List.getAt (e.col - 1) of
                                     Just c ->
-                                        case c of
-                                            ')' ->
-                                                3
-
-                                            ']' ->
-                                                57
-
-                                            '}' ->
-                                                1197
-
-                                            '>' ->
-                                                25137
-
-                                            _ ->
-                                                0
+                                        c
 
                                     Nothing ->
-                                        0
+                                        default
 
                             _ ->
                                 Debug.todo "parse failed"
@@ -138,53 +132,6 @@ solve1 : List Int -> Int
 solve1 values =
     values
         |> List.foldl (+) 0
-
-
-s1Help : Maybe Symbol -> List Symbol -> Int
-s1Help open symbols =
-    let
-        _ =
-            Debug.log "helper open" open
-    in
-    case symbols of
-        [] ->
-            0
-
-        head :: tail ->
-            case head of
-                Open _ ->
-                    s1Help (Just head) tail
-
-                Close c ->
-                    case open of
-                        Just (Open o) ->
-                            if c == o then
-                                0
-
-                            else
-                                score c
-
-                        Just (Close _) ->
-                            Debug.todo "close as parameter 1"
-
-                        Nothing ->
-                            0
-
-
-score : Paren -> Int
-score paren =
-    case paren of
-        Parenthesis ->
-            3
-
-        Square ->
-            57
-
-        Braces ->
-            1197
-
-        Hook ->
-            25137
 
 
 solve2 : List Int -> Int

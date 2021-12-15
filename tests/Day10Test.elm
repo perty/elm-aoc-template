@@ -1,6 +1,6 @@
 module Day10Test exposing (parseTest, singleLineTest, suite, testInput)
 
-import Day10 exposing (Paren(..), Symbol(..))
+import Day10
 import Expect exposing (Expectation)
 import Test exposing (..)
 
@@ -10,7 +10,7 @@ suite =
     describe "Day10"
         [ describe "Problem 1"
             [ test "Chunk Parser" <|
-                \_ -> Day10.chunkParse parseTest |> Expect.equal 57
+                \_ -> Day10.chunkParse parseTest |> Expect.equal ']'
             , test "Single line" <|
                 \_ -> Day10.solution1 singleLineTest |> Expect.equal 1197
             , test "As given" <|
