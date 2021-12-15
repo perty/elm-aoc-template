@@ -17,6 +17,7 @@ solution1 : String -> Int
 solution1 input =
     input
         |> parse
+        |> List.map score
         |> solve1
 
 
@@ -31,13 +32,12 @@ type Chunk
     = Chunk
 
 
-parse : String -> List Int
+parse : String -> List Char
 parse string =
     string
         |> String.trim
         |> String.lines
         |> List.map chunkParse
-        |> List.map score
 
 
 score c =
@@ -134,7 +134,7 @@ solve1 values =
         |> List.foldl (+) 0
 
 
-solve2 : List Int -> Int
+solve2 : List Char -> Int
 solve2 _ =
     4711
 
