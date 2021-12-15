@@ -1,5 +1,6 @@
 module Day10 exposing
-    ( autocomplete
+    ( autoCompleteScore
+    , autocomplete
     , chunkParse
     , main
     , parse
@@ -160,7 +161,28 @@ autocomplete string =
 
 autoCompleteScore : String -> Int
 autoCompleteScore string =
-    -12
+    string
+        |> String.toList
+        |> List.foldl (\c acc -> 5 * acc + cValue c) 0
+
+
+cValue : Char -> Int
+cValue char =
+    case char of
+        ')' ->
+            1
+
+        ']' ->
+            2
+
+        '}' ->
+            3
+
+        '>' ->
+            4
+
+        _ ->
+            0
 
 
 main : Html Never

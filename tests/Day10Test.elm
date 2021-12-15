@@ -23,9 +23,10 @@ suite =
                 \_ -> Day10.autocomplete autoCompleteLine |> Expect.equal autoCompleteLineResult
             , test "Autocomplete a bad line" <|
                 \_ -> Day10.autocomplete parseTest |> Expect.equal ""
-            , only <|
-                test "As given" <|
-                    \_ -> Day10.solution2 testInput |> Expect.equal 288957
+            , test "Autocomplete score" <|
+                \_ -> Day10.autoCompleteScore ")}>]})" |> Expect.equal 5566
+            , test "As given" <|
+                \_ -> Day10.solution2 testInput |> Expect.equal 288957
             , test "From puzzle input" <|
                 \_ -> Day10.solution2 Day10.puzzleInput |> Expect.equal -1
             ]
