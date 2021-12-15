@@ -27,12 +27,15 @@ solution2 : String -> Int
 solution2 input =
     let
         sortedScore =
-            input
-                |> String.trim
-                |> String.lines
-                |> List.map autocomplete
-                |> List.map autoCompleteScore
-                |> List.sort
+            Debug.log "sorted score" <|
+                (input
+                    |> String.trim
+                    |> String.lines
+                    |> List.map autocomplete
+                    |> List.filter (\s -> String.length s > 0)
+                    |> List.map autoCompleteScore
+                    |> List.sort
+                )
     in
     List.getAt (List.length sortedScore // 2) sortedScore
         |> Maybe.withDefault -32
@@ -140,10 +143,6 @@ solve1 : List Int -> Int
 solve1 values =
     values
         |> List.foldl (+) 0
-
-
-solve2 _ =
-    4711
 
 
 autocomplete : String -> String
