@@ -32,7 +32,7 @@ solution2 input =
                     |> String.trim
                     |> String.lines
                     |> List.map autocomplete
-                    |> List.filter (\s -> String.length s > 0)
+                    |> List.filter (String.isEmpty >> not)
                     |> List.map autoCompleteScore
                     |> List.sort
                 )

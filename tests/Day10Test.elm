@@ -28,7 +28,7 @@ suite =
             , test "As given" <|
                 \_ -> Day10.solution2 testInput |> Expect.equal 288957
             , test "From puzzle input" <|
-                \_ -> Day10.solution2 Day10.puzzleInput |> Expect.equal -1
+                \_ -> Day10.solution2 Day10.puzzleInput |> Expect.equal 3654963618
             ]
         ]
 
