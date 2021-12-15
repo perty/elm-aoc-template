@@ -1,4 +1,4 @@
-module Day10Test exposing (parseTest, parseTestResult, singleLineTest, suite, testInput)
+module Day10Test exposing (parseTest, singleLineTest, suite, testInput)
 
 import Day10 exposing (Paren(..), Symbol(..))
 import Expect exposing (Expectation)
@@ -10,13 +10,13 @@ suite =
     describe "Day10"
         [ describe "Problem 1"
             [ test "Chunk Parser" <|
-                \_ -> Day10.chunkParse parseTest |> Expect.equal 25137
+                \_ -> Day10.chunkParse parseTest |> Expect.equal 57
             , test "Single line" <|
-                \_ -> Day10.solution1 singleLineTest |> Expect.equal 26397
+                \_ -> Day10.solution1 singleLineTest |> Expect.equal 1197
             , test "As given" <|
                 \_ -> Day10.solution1 testInput |> Expect.equal 26397
             , test "From puzzle input" <|
-                \_ -> Day10.solution1 Day10.puzzleInput |> Expect.equal -1
+                \_ -> Day10.solution1 Day10.puzzleInput |> Expect.equal 299793
             ]
         , describe "Problem 2"
             [ test "As given" <|
@@ -50,32 +50,3 @@ parseTest =
 
 singleLineTest =
     "{([(<{}[<>[]}>{[]{[(<()>"
-
-
-parseTestResult =
-    [ [ Open Square
-      , Open Parenthesis
-      , Open Braces
-      , Open Parenthesis
-      , Open Hook
-      , Open Parenthesis
-      , Open Parenthesis
-      , Close Parenthesis
-      , Close Parenthesis
-      , Open Square
-      , Close Square
-      , Close Hook
-      , Open Square
-      , Open Square
-      , Open Braces
-      , Open Square
-      , Close Square
-      , Open Braces
-      , Open Hook
-      , Open Parenthesis
-      , Close Parenthesis
-      , Open Hook
-      , Close Hook
-      , Close Hook
-      ]
-    ]

@@ -1,7 +1,17 @@
-module Day10 exposing (Paren(..), Symbol(..), chunkParse, main, parse, parseChar, parseLine, parseParen, parseSymbol, puzzleInput, s1Help, score, solution1, solution2, solve1, solve2)
+module Day10 exposing
+    ( Paren(..)
+    , Symbol(..)
+    , chunkParse
+    , main
+    , parse
+    , puzzleInput
+    , solution1
+    , solution2
+    )
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, Problem(..), Trailing(..), chompIf, getChompedString, lazy, oneOf, problem, succeed, symbol)
+import List.Extra as List
+import Parser exposing ((|.), (|=), Parser, Problem(..), Trailing(..), lazy, oneOf, succeed, symbol)
 import Parser.Extras
 
 
@@ -31,12 +41,12 @@ type Symbol
     | Close Paren
 
 
-parse : String -> List (List Symbol)
+parse : String -> List Int
 parse string =
     string
         |> String.trim
         |> String.lines
-        |> List.map parseLine
+        |> List.map chunkParse
 
 
 type Chunk
@@ -68,17 +78,27 @@ chunkParse string =
 
                     else
                         case e.problem of
-                            ExpectingSymbol ")" ->
-                                3
+                            ExpectingSymbol _ ->
+                                case String.toList trimmed |> List.getAt (e.col - 1) of
+                                    Just c ->
+                                        case c of
+                                            ')' ->
+                                                3
 
-                            ExpectingSymbol "]" ->
-                                57
+                                            ']' ->
+                                                57
 
-                            ExpectingSymbol "}" ->
-                                1197
+                                            '}' ->
+                                                1197
 
-                            ExpectingSymbol ">" ->
-                                25137
+                                            '>' ->
+                                                25137
+
+                                            _ ->
+                                                0
+
+                                    Nothing ->
+                                        0
 
                             _ ->
                                 Debug.todo "parse failed"
@@ -114,84 +134,9 @@ chunks =
     Parser.Extras.many chunkParser
 
 
-parseLine : String -> List Symbol
-parseLine string =
-    let
-        parseResult =
-            Parser.run
-                (succeed identity
-                    |= Parser.sequence
-                        { item = parseSymbol
-                        , start = ""
-                        , end = ""
-                        , spaces = Parser.succeed ()
-                        , separator = ""
-                        , trailing = Optional
-                        }
-                )
-                string
-    in
-    case parseResult of
-        Ok result ->
-            result
-
-        Err error ->
-            Debug.todo "parse failed" <| Debug.log "Error" error
-
-
-parseSymbol : Parser Symbol
-parseSymbol =
-    oneOf
-        [ succeed Open
-            |= parseChar [ '(', '[', '{', '<' ]
-        , succeed Close
-            |= parseChar [ ')', ']', '}', '>' ]
-        ]
-
-
-parseChar : List Char -> Parser Paren
-parseChar symbols =
-    (getChompedString <|
-        succeed ()
-            |. chompIf (\c -> List.member c symbols)
-    )
-        |> Parser.andThen parseParen
-
-
-parseParen : String -> Parser Paren
-parseParen s =
-    case s of
-        "(" ->
-            succeed Parenthesis
-
-        ")" ->
-            succeed Parenthesis
-
-        "{" ->
-            succeed Braces
-
-        "}" ->
-            succeed Braces
-
-        "[" ->
-            succeed Square
-
-        "]" ->
-            succeed Square
-
-        "<" ->
-            succeed Hook
-
-        ">" ->
-            succeed Hook
-
-        _ ->
-            problem (s ++ " is not know")
-
-
-solve1 : List (List Symbol) -> Int
-solve1 symbols =
-    List.map (\l -> s1Help Nothing l) symbols
+solve1 : List Int -> Int
+solve1 values =
+    values
         |> List.foldl (+) 0
 
 
@@ -242,7 +187,7 @@ score paren =
             25137
 
 
-solve2 : List (List Symbol) -> Int
+solve2 : List Int -> Int
 solve2 _ =
     4711
 
