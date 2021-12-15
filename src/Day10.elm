@@ -1,5 +1,6 @@
 module Day10 exposing
-    ( chunkParse
+    ( autocomplete
+    , chunkParse
     , main
     , parse
     , puzzleInput
@@ -23,16 +24,24 @@ solution1 input =
 
 solution2 : String -> Int
 solution2 input =
-    input
-        |> parse
-        |> solve2
+    let
+        sortedScore =
+            input
+                |> String.trim
+                |> String.lines
+                |> List.map autocomplete
+                |> List.map autoCompleteScore
+                |> List.sort
+    in
+    List.getAt (List.length sortedScore // 2) sortedScore
+        |> Maybe.withDefault -32
 
 
 type Chunk
     = Chunk
 
 
-parse : String -> List Char
+parse : String -> List ( Char, String )
 parse string =
     string
         |> String.trim
@@ -40,7 +49,8 @@ parse string =
         |> List.map chunkParse
 
 
-score c =
+score : ( Char, String ) -> Int
+score ( c, _ ) =
     case c of
         ')' ->
             3
@@ -58,41 +68,38 @@ score c =
             0
 
 
-chunkParse : String -> Char
+chunkParse : String -> ( Char, String )
 chunkParse string =
     let
         trimmed =
             String.trim string
 
-        default =
-            '?'
+        incomplete =
+            ( '?', "" )
     in
     case Parser.run chunkParser trimmed of
         Ok Chunk ->
-            default
+            ( '!', "" )
 
         Err error ->
             let
-                _ =
-                    Debug.log "parse error" error
-
                 len =
-                    Debug.log "string len" (String.length trimmed)
+                    String.length trimmed
             in
             case List.head error of
                 Just e ->
                     if e.col > len then
-                        default
+                        incomplete
 
                     else
                         case e.problem of
-                            ExpectingSymbol _ ->
+                            ExpectingSymbol expected ->
                                 case String.toList trimmed |> List.getAt (e.col - 1) of
-                                    Just c ->
-                                        c
+                                    Just illegal ->
+                                        ( illegal, expected )
 
                                     Nothing ->
-                                        default
+                                        incomplete
 
                             _ ->
                                 Debug.todo "parse failed"
@@ -134,9 +141,26 @@ solve1 values =
         |> List.foldl (+) 0
 
 
-solve2 : List Char -> Int
 solve2 _ =
     4711
+
+
+autocomplete : String -> String
+autocomplete string =
+    let
+        ( illegal, expected ) =
+            chunkParse (string ++ "|")
+    in
+    if illegal == '|' && expected /= "" then
+        expected ++ autocomplete (string ++ expected)
+
+    else
+        ""
+
+
+autoCompleteScore : String -> Int
+autoCompleteScore string =
+    -12
 
 
 main : Html Never

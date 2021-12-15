@@ -10,7 +10,7 @@ suite =
     describe "Day10"
         [ describe "Problem 1"
             [ test "Chunk Parser" <|
-                \_ -> Day10.chunkParse parseTest |> Expect.equal ']'
+                \_ -> Day10.chunkParse parseTest |> Expect.equal ( ']', ">" )
             , test "Single line" <|
                 \_ -> Day10.solution1 singleLineTest |> Expect.equal 1197
             , test "As given" <|
@@ -19,8 +19,13 @@ suite =
                 \_ -> Day10.solution1 Day10.puzzleInput |> Expect.equal 299793
             ]
         , describe "Problem 2"
-            [ test "As given" <|
-                \_ -> Day10.solution2 testInput |> Expect.equal -1
+            [ test "Autocomplete a line" <|
+                \_ -> Day10.autocomplete autoCompleteLine |> Expect.equal autoCompleteLineResult
+            , test "Autocomplete a bad line" <|
+                \_ -> Day10.autocomplete parseTest |> Expect.equal ""
+            , only <|
+                test "As given" <|
+                    \_ -> Day10.solution2 testInput |> Expect.equal 288957
             , test "From puzzle input" <|
                 \_ -> Day10.solution2 Day10.puzzleInput |> Expect.equal -1
             ]
@@ -50,3 +55,11 @@ parseTest =
 
 singleLineTest =
     "{([(<{}[<>[]}>{[]{[(<()>"
+
+
+autoCompleteLine =
+    "[({(<(())[]>[[{[]{<()<>>"
+
+
+autoCompleteLineResult =
+    "}}]])})]"
