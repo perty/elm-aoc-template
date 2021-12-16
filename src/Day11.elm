@@ -41,6 +41,11 @@ solve1 _ =
     43
 
 
+type Dumbo
+    = Value Int
+    | Flashed
+
+
 nextGeneration : Matrix Int -> Matrix Int
 nextGeneration matrix =
     let
@@ -65,7 +70,20 @@ flashUntilStable matrix =
         flashed
 
     else
-        flashUntilStable flashed
+        flashUntilStable (sinkFlashed flashed)
+
+
+sinkFlashed : Matrix Int -> Matrix Int
+sinkFlashed matrix =
+    Matrix.indexedMap
+        (\x y e ->
+            if e >= 9 then
+                -999
+
+            else
+                e
+        )
+        matrix
 
 
 flashMatrix : Int -> Matrix Int -> Matrix Int
