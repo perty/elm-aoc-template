@@ -27,15 +27,13 @@ solution2 : String -> Int
 solution2 input =
     let
         sortedScore =
-            Debug.log "sorted score" <|
-                (input
-                    |> String.trim
-                    |> String.lines
-                    |> List.map autocomplete
-                    |> List.filter (String.isEmpty >> not)
-                    |> List.map autoCompleteScore
-                    |> List.sort
-                )
+            input
+                |> String.trim
+                |> String.lines
+                |> List.map autocomplete
+                |> List.filter (String.isEmpty >> not)
+                |> List.map autoCompleteScore
+                |> List.sort
     in
     List.getAt (List.length sortedScore // 2) sortedScore
         |> Maybe.withDefault -32
