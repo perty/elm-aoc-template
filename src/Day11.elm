@@ -46,21 +46,43 @@ type Dumbo
     | Flashed
 
 
-nextGeneration : Matrix Int -> Matrix Int
-nextGeneration matrix =
+nextStep : Matrix Dumbo -> Matrix Dumbo
+nextStep matrix =
+    matrix
+        |> incrementByOne
+        |> flashUntilStable
+        |> resetFlashed
+
+
+resetFlashed : Matrix Dumbo -> Matrix Dumbo
+resetFlashed matrix =
     let
-        tick =
-            incrementByOne matrix
+        reset _ _ e =
+            case e of
+                Flashed ->
+                    Value 0
+
+                Value _ ->
+                    e
     in
-    flashUntilStable matrix
+    Matrix.indexedMap reset matrix
 
 
-incrementByOne : Matrix Int -> Matrix Int
+incrementByOne : Matrix Dumbo -> Matrix Dumbo
 incrementByOne matrix =
-    Matrix.map (\e -> e + 1) matrix
+    let
+        inc e =
+            case e of
+                Value v ->
+                    Value (v + 1)
+
+                Flashed ->
+                    Flashed
+    in
+    Matrix.map inc matrix
 
 
-flashUntilStable : Matrix Int -> Matrix Int
+flashUntilStable : Matrix Dumbo -> Matrix Dumbo
 flashUntilStable matrix =
     let
         flashed =
@@ -70,23 +92,10 @@ flashUntilStable matrix =
         flashed
 
     else
-        flashUntilStable (sinkFlashed flashed)
+        flashUntilStable flashed
 
 
-sinkFlashed : Matrix Int -> Matrix Int
-sinkFlashed matrix =
-    Matrix.indexedMap
-        (\x y e ->
-            if e >= 9 then
-                -999
-
-            else
-                e
-        )
-        matrix
-
-
-flashMatrix : Int -> Matrix Int -> Matrix Int
+flashMatrix : Int -> Matrix Dumbo -> Matrix Dumbo
 flashMatrix row matrix =
     let
         ( maxRow, _ ) =
@@ -100,15 +109,15 @@ flashMatrix row matrix =
             flashed =
                 flashRow row matrix
         in
-        flashRow (row + 1) flashed
+        flashMatrix (row + 1) flashed
 
 
-flashRow : Int -> Matrix Int -> Matrix Int
+flashRow : Int -> Matrix Dumbo -> Matrix Dumbo
 flashRow row matrix =
     flashCol row 0 matrix
 
 
-flashCol : Int -> Int -> Matrix Int -> Matrix Int
+flashCol : Int -> Int -> Matrix Dumbo -> Matrix Dumbo
 flashCol row col matrix =
     let
         ( _, maxCol ) =
@@ -125,20 +134,24 @@ flashCol row col matrix =
         flashCol row (col + 1) flashed
 
 
-flashElement : Int -> Int -> Matrix Int -> Matrix Int
+flashElement : Int -> Int -> Matrix Dumbo -> Matrix Dumbo
 flashElement row col matrix =
     let
+        incCell : Int -> Int -> Matrix Dumbo -> Matrix Dumbo
         incCell r c m =
             case Matrix.get matrix r c of
-                Nothing ->
+                Just (Value v) ->
+                    Matrix.set m r c (Value (v + 1))
+
+                Just Flashed ->
                     m
 
-                Just v ->
-                    Matrix.set m r c (v + 1)
+                Nothing ->
+                    m
     in
     case Matrix.get matrix row col of
-        Just value ->
-            if value >= 9 then
+        Just (Value value) ->
+            if value > 9 then
                 matrix
                     |> incCell (row + 1) col
                     |> incCell (row - 1) col
@@ -148,9 +161,13 @@ flashElement row col matrix =
                     |> incCell (row + 1) (col + 1)
                     |> incCell (row + 1) (col - 1)
                     |> incCell (row - 1) (col + 1)
+                    |> (\m -> Matrix.set m row col Flashed)
 
             else
                 matrix
+
+        Just Flashed ->
+            matrix
 
         Nothing ->
             matrix
