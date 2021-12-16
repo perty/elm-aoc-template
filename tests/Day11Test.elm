@@ -15,6 +15,8 @@ suite =
                 \_ -> Day11.parse testInput |> Expect.equal parsedTestInput
             , test "Flash element" <|
                 \_ -> Day11.flashElement 1 1 flashInput |> Expect.equal flashedCell11
+            , test "Flash matrix" <|
+                \_ -> Day11.flashUntilStable flashInput |> Expect.equal flashedMatrix
             , test "As given" <|
                 \_ -> Day11.solution1 testInput |> Expect.equal 1656
             ]
@@ -68,8 +70,18 @@ flashInput =
 flashedCell11 =
     Array.fromList
         [ Array.fromList [ 2, 2, 2, 1, 1 ]
-        , Array.fromList [ 2, 10, 10, 9, 1 ]
+        , Array.fromList [ 2, 9, 10, 9, 1 ]
         , Array.fromList [ 2, 10, 2, 9, 1 ]
+        , Array.fromList [ 1, 9, 9, 9, 1 ]
+        , Array.fromList [ 1, 1, 1, 1, 1 ]
+        ]
+
+
+flashedMatrix =
+    Array.fromList
+        [ Array.fromList [ 2, 3, 4, 3, 2 ]
+        , Array.fromList [ 2, 10, 11, 10, 2 ]
+        , Array.fromList [ 2, 11, 4, 11, 2 ]
         , Array.fromList [ 1, 9, 9, 9, 1 ]
         , Array.fromList [ 1, 1, 1, 1, 1 ]
         ]

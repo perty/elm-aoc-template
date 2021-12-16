@@ -116,11 +116,11 @@ flashElement row col matrix =
                     m
 
                 Just v ->
-                    Matrix.set matrix r c (v + 1)
+                    Matrix.set m r c (v + 1)
     in
     case Matrix.get matrix row col of
         Just value ->
-            if value == 9 then
+            if value >= 9 then
                 matrix
                     |> incCell (row + 1) col
                     |> incCell (row - 1) col
