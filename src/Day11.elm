@@ -19,14 +19,21 @@ solution2 input =
         |> solve2
 
 
-parse : String -> Matrix Int
+type Dumbo
+    = Value Int
+    | Flashed
+
+
+parse : String -> Matrix Dumbo
 parse string =
     let
+        stringToInts : String -> Array.Array Dumbo
         stringToInts s =
             s
                 |> String.toList
                 |> Array.fromList
                 |> Array.map (String.fromChar >> String.toInt >> Maybe.withDefault -1)
+                |> Array.map Value
     in
     string
         |> String.trim
@@ -36,17 +43,26 @@ parse string =
         |> Array.fromList
 
 
-solve1 : Matrix Int -> Int
-solve1 _ =
-    43
+solve1 : Matrix Dumbo -> Int
+solve1 matrix =
+    let
+        ( _, result ) =
+            List.range 1 100
+                |> List.foldl (\_ ( m1, n1 ) -> promote ( m1, n1 )) ( matrix, 0 )
+    in
+    result
 
 
-type Dumbo
-    = Value Int
-    | Flashed
+promote : ( Matrix Dumbo, Int ) -> ( Matrix Dumbo, Int )
+promote ( matrix, n ) =
+    let
+        ( m1, n1 ) =
+            nextStep matrix
+    in
+    ( m1, n + n1 )
 
 
-nextStep : Matrix Dumbo -> Matrix Dumbo
+nextStep : Matrix Dumbo -> ( Matrix Dumbo, Int )
 nextStep matrix =
     matrix
         |> incrementByOne
@@ -54,7 +70,7 @@ nextStep matrix =
         |> resetFlashed
 
 
-resetFlashed : Matrix Dumbo -> Matrix Dumbo
+resetFlashed : Matrix Dumbo -> ( Matrix Dumbo, Int )
 resetFlashed matrix =
     let
         reset _ _ e =
@@ -64,8 +80,26 @@ resetFlashed matrix =
 
                 Value _ ->
                     e
+
+        flashes =
+            foldl
+                (\e acc ->
+                    if e == Flashed then
+                        acc + 1
+
+                    else
+                        acc
+                )
+                0
+                (+)
+                matrix
     in
-    Matrix.indexedMap reset matrix
+    ( Matrix.indexedMap reset matrix, flashes )
+
+
+foldl : (a -> b -> b) -> b -> (b -> b -> b) -> Matrix.Matrix a -> b
+foldl function acc accJoin matrix =
+    Array.foldl (\ma a -> Array.foldl function acc ma |> accJoin a) acc matrix
 
 
 incrementByOne : Matrix Dumbo -> Matrix Dumbo
@@ -173,7 +207,7 @@ flashElement row col matrix =
             matrix
 
 
-solve2 : Matrix Int -> Int
+solve2 : Matrix Dumbo -> Int
 solve2 _ =
     4711
 

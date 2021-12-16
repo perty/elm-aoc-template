@@ -26,9 +26,11 @@ suite =
                         |> Expect.equal oneStep
             , test "As given" <|
                 \_ -> Day11.solution1 testInput |> Expect.equal 1656
+            , test "From puzzle input" <|
+                \_ -> Day11.solution1 Day11.puzzleInput |> Expect.equal -1
             ]
         , describe "Problem 2"
-            [ test "As given, sliding window of 3" <|
+            [ test "As given" <|
                 \_ -> Day11.solution2 testInput |> Expect.equal -1
             ]
         ]
@@ -51,16 +53,16 @@ testInput =
 
 parsedTestInput =
     Array.fromList
-        [ Array.fromList [ 5, 4, 8, 3, 1, 4, 3, 2, 2, 3 ]
-        , Array.fromList [ 2, 7, 4, 5, 8, 5, 4, 7, 1, 1 ]
-        , Array.fromList [ 5, 2, 6, 4, 5, 5, 6, 1, 7, 3 ]
-        , Array.fromList [ 6, 1, 4, 1, 3, 3, 6, 1, 4, 6 ]
-        , Array.fromList [ 6, 3, 5, 7, 3, 8, 5, 4, 7, 8 ]
-        , Array.fromList [ 4, 1, 6, 7, 5, 2, 4, 6, 4, 5 ]
-        , Array.fromList [ 2, 1, 7, 6, 8, 4, 1, 7, 2, 1 ]
-        , Array.fromList [ 6, 8, 8, 2, 8, 8, 1, 1, 3, 4 ]
-        , Array.fromList [ 4, 8, 4, 6, 8, 4, 8, 5, 5, 4 ]
-        , Array.fromList [ 5, 2, 8, 3, 7, 5, 1, 5, 2, 6 ]
+        [ Array.fromList [ Value 5, Value 4, Value 8, Value 3, Value 1, Value 4, Value 3, Value 2, Value 2, Value 3 ]
+        , Array.fromList [ Value 2, Value 7, Value 4, Value 5, Value 8, Value 5, Value 4, Value 7, Value 1, Value 1 ]
+        , Array.fromList [ Value 5, Value 2, Value 6, Value 4, Value 5, Value 5, Value 6, Value 1, Value 7, Value 3 ]
+        , Array.fromList [ Value 6, Value 1, Value 4, Value 1, Value 3, Value 3, Value 6, Value 1, Value 4, Value 6 ]
+        , Array.fromList [ Value 6, Value 3, Value 5, Value 7, Value 3, Value 8, Value 5, Value 4, Value 7, Value 8 ]
+        , Array.fromList [ Value 4, Value 1, Value 6, Value 7, Value 5, Value 2, Value 4, Value 6, Value 4, Value 5 ]
+        , Array.fromList [ Value 2, Value 1, Value 7, Value 6, Value 8, Value 4, Value 1, Value 7, Value 2, Value 1 ]
+        , Array.fromList [ Value 6, Value 8, Value 8, Value 2, Value 8, Value 8, Value 1, Value 1, Value 3, Value 4 ]
+        , Array.fromList [ Value 4, Value 8, Value 4, Value 6, Value 8, Value 4, Value 8, Value 5, Value 5, Value 4 ]
+        , Array.fromList [ Value 5, Value 2, Value 8, Value 3, Value 7, Value 5, Value 1, Value 5, Value 2, Value 6 ]
         ]
 
 
@@ -115,10 +117,12 @@ untilStable =
 
 
 oneStep =
-    Array.fromList
+    ( Array.fromList
         [ Array.fromList [ Value 3, Value 4, Value 5, Value 4, Value 3 ]
         , Array.fromList [ Value 4, Value 0, Value 0, Value 0, Value 4 ]
         , Array.fromList [ Value 5, Value 0, Value 0, Value 0, Value 5 ]
         , Array.fromList [ Value 4, Value 0, Value 0, Value 0, Value 4 ]
         , Array.fromList [ Value 3, Value 4, Value 5, Value 4, Value 3 ]
         ]
+    , 9
+    )
