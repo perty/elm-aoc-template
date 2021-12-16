@@ -208,8 +208,25 @@ flashElement row col matrix =
 
 
 solve2 : Matrix Dumbo -> Int
-solve2 _ =
-    4711
+solve2 matrix =
+    let
+        ( r, c ) =
+            Matrix.size matrix
+    in
+    allFlashing 1 (r * c) matrix
+
+
+allFlashing : Int -> Int -> Matrix Dumbo -> Int
+allFlashing step target matrix =
+    let
+        ( m1, n1 ) =
+            nextStep matrix
+    in
+    if n1 >= target then
+        step
+
+    else
+        allFlashing (step + 1) target m1
 
 
 main : Html Never
