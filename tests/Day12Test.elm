@@ -1,6 +1,7 @@
 module Day12Test exposing (..)
 
 import Day12 exposing (Cave(..), CaveConnection(..))
+import Dict
 import Expect exposing (Expectation)
 import Test exposing (..)
 
@@ -11,6 +12,11 @@ suite =
         [ describe "Problem 1"
             [ test "Parser" <|
                 \_ -> Day12.parse testInput |> Expect.equal parsedTestInput
+            , test "Build graph" <|
+                \_ ->
+                    Day12.parse smallExample10Paths
+                        |> Day12.toGraph
+                        |> Expect.equal smallGraph
             , test "As given" <|
                 \_ -> Day12.solution1 testInput |> Expect.equal 226
             , test "From puzzle input" <|
@@ -35,6 +41,17 @@ smallExample10Paths =
     A-end
     b-end
     """
+
+
+smallGraph =
+    Dict.fromList
+        [ ( "A", [ End, Small "b", Small "c", Start ] )
+        , ( "b", [ End, Small "d", Big "A", Start ] )
+        , ( "c", [ Big "A" ] )
+        , ( "d", [ Small "b" ] )
+        , ( "end", [ Small "b", Big "A" ] )
+        , ( "start", [ Small "b", Big "A" ] )
+        ]
 
 
 testInput =

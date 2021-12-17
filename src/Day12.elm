@@ -1,5 +1,6 @@
 module Day12 exposing (..)
 
+import Dict exposing (Dict)
 import Html exposing (Html)
 import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, oneOf, problem, succeed, symbol)
 
@@ -44,6 +45,7 @@ parse string =
     string
         |> String.trim
         |> String.lines
+        |> List.map String.trim
         |> List.map (\line -> Parser.run parseCaveConnection line)
         |> List.filterMap (\r -> filterOk r)
 
@@ -95,6 +97,53 @@ checkLength code =
 
     else
         problem "not a string"
+
+
+toGraph : List CaveConnection -> Dict String (List Cave)
+toGraph caveConnections =
+    let
+        _ =
+            Debug.log "connections" caveConnections
+    in
+    List.foldl connectCaves Dict.empty caveConnections
+
+
+connectCaves : CaveConnection -> Dict String (List Cave) -> Dict String (List Cave)
+connectCaves caveConnection dict =
+    let
+        (CaveConnection caveA caveB) =
+            caveConnection
+
+        keyA =
+            caveToString caveA
+
+        keyB =
+            caveToString caveB
+
+        currentA =
+            Dict.get keyA dict |> Maybe.withDefault []
+
+        currentB =
+            Dict.get keyB dict |> Maybe.withDefault []
+    in
+    Dict.insert keyA (caveB :: currentA) dict
+        |> Dict.insert keyB (caveA :: currentB)
+
+
+caveToString : Cave -> String
+caveToString cave =
+    case cave of
+        Start ->
+            "start"
+
+        End ->
+            "end"
+
+        Big string ->
+            string
+
+        Small string ->
+            string
 
 
 solve1 : List CaveConnection -> Int
