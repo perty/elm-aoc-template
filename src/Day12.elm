@@ -176,8 +176,12 @@ pathsFromCave visited caves caveGraph =
                     let
                         fromHead =
                             pathsFromCave (head :: visited) connectedCaves caveGraph
+
+                        paths =
+                            fromHead
+                                |> List.map (\l -> head :: l)
                     in
-                    List.append fromHead (pathsFromCave (head :: visited) tail caveGraph)
+                    List.append paths (pathsFromCave (head :: visited) tail caveGraph)
 
                 Nothing ->
                     []
@@ -187,9 +191,13 @@ pathsFromCave visited caves caveGraph =
             []
 
         head :: tail ->
+            let
+                _ =
+                    Debug.log "caves" caves
+            in
             case head of
                 End ->
-                    []
+                    List.append [ [ End ] ] (pathsFromCave (head :: visited) tail caveGraph)
 
                 Start ->
                     pursueCave head tail "start"
