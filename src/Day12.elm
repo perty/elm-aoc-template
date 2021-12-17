@@ -30,6 +30,10 @@ type CaveConnection
     = CaveConnection Cave Cave
 
 
+type alias CaveGraph =
+    Dict String (List Cave)
+
+
 parse : String -> List CaveConnection
 parse string =
     let
@@ -99,16 +103,12 @@ checkLength code =
         problem "not a string"
 
 
-toGraph : List CaveConnection -> Dict String (List Cave)
+toGraph : List CaveConnection -> CaveGraph
 toGraph caveConnections =
-    let
-        _ =
-            Debug.log "connections" caveConnections
-    in
     List.foldl connectCaves Dict.empty caveConnections
 
 
-connectCaves : CaveConnection -> Dict String (List Cave) -> Dict String (List Cave)
+connectCaves : CaveConnection -> CaveGraph -> CaveGraph
 connectCaves caveConnection dict =
     let
         (CaveConnection caveA caveB) =
