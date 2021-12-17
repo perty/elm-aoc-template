@@ -1,7 +1,6 @@
 module Day12Test exposing (..)
 
-import Array
-import Day12
+import Day12 exposing (Cave(..), CaveConnection(..))
 import Expect exposing (Expectation)
 import Test exposing (..)
 
@@ -24,6 +23,18 @@ suite =
                 \_ -> Day12.solution2 Day12.puzzleInput |> Expect.equal -1
             ]
         ]
+
+
+smallExample10Paths =
+    """
+    start-A
+    start-b
+    A-c
+    A-b
+    b-d
+    A-end
+    b-end
+    """
 
 
 testInput =
@@ -49,17 +60,23 @@ start-RW
     """
 
 
-smallExample10Paths =
-    """
-    start-A
-    start-b
-    A-c
-    A-b
-    b-d
-    A-end
-    b-end
-    """
-
-
 parsedTestInput =
-    []
+    [ CaveConnection (Small "fs") End
+    , CaveConnection (Small "he") (Big "DX")
+    , CaveConnection (Small "fs") (Small "he")
+    , CaveConnection Start (Big "DX")
+    , CaveConnection (Small "pj") (Big "DX")
+    , CaveConnection End (Small "zg")
+    , CaveConnection (Small "zg") (Small "sl")
+    , CaveConnection (Small "zg") (Small "pj")
+    , CaveConnection (Small "pj") (Small "he")
+    , CaveConnection (Big "RW") (Small "he")
+    , CaveConnection (Small "fs") (Big "DX")
+    , CaveConnection (Small "pj") (Big "RW")
+    , CaveConnection (Small "zg") (Big "RW")
+    , CaveConnection Start (Small "pj")
+    , CaveConnection (Small "he") (Big "WI")
+    , CaveConnection (Small "zg") (Small "he")
+    , CaveConnection (Small "pj") (Small "fs")
+    , CaveConnection Start (Big "RW")
+    ]

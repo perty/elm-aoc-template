@@ -1,7 +1,7 @@
 module Day12 exposing (..)
 
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, chompWhile, getChompedString, succeed, symbol)
+import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, oneOf, problem, succeed, symbol)
 
 
 solution1 : String -> Int
@@ -26,7 +26,7 @@ type Cave
 
 
 type CaveConnection
-    = CaveConnection String String
+    = CaveConnection Cave Cave
 
 
 parse : String -> List CaveConnection
@@ -56,11 +56,45 @@ parseCaveConnection =
         |= parseNode
 
 
-parseNode : Parser String
+parseNode : Parser Cave
 parseNode =
-    getChompedString <|
+    oneOf
+        [ succeed Start
+            |. symbol "start"
+        , succeed End
+            |. symbol "end"
+        , succeed Small
+            |= parseSmall
+        , succeed Big
+            |= parseBig
+        ]
+
+
+parseSmall : Parser String
+parseSmall =
+    (getChompedString <|
         succeed ()
-            |. chompWhile (\c -> Char.isAlpha c)
+            |. chompWhile (\c -> Char.isLower c)
+    )
+        |> andThen checkLength
+
+
+parseBig : Parser String
+parseBig =
+    (getChompedString <|
+        succeed ()
+            |. chompWhile (\c -> Char.isUpper c)
+    )
+        |> andThen checkLength
+
+
+checkLength : String -> Parser String
+checkLength code =
+    if String.length code > 0 then
+        succeed code
+
+    else
+        problem "not a string"
 
 
 solve1 : List CaveConnection -> Int
