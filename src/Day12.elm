@@ -167,6 +167,44 @@ solve1 _ =
     43
 
 
+pathsFromCave : List Cave -> List Cave -> CaveGraph -> List (List Cave)
+pathsFromCave visited caves caveGraph =
+    let
+        pursueCave head tail name =
+            case Dict.get name caveGraph of
+                Just connectedCaves ->
+                    let
+                        fromHead =
+                            pathsFromCave (head :: visited) connectedCaves caveGraph
+                    in
+                    List.append fromHead (pathsFromCave (head :: visited) tail caveGraph)
+
+                Nothing ->
+                    []
+    in
+    case caves of
+        [] ->
+            []
+
+        head :: tail ->
+            case head of
+                End ->
+                    []
+
+                Start ->
+                    pursueCave head tail "start"
+
+                Big name ->
+                    pursueCave head tail name
+
+                Small name ->
+                    if List.member (Small name) visited then
+                        []
+
+                    else
+                        pursueCave head tail name
+
+
 solve2 : List CaveConnection -> Int
 solve2 _ =
     4711

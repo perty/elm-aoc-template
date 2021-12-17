@@ -17,6 +17,10 @@ suite =
                     Day12.parse smallExample10Paths
                         |> Day12.toGraph
                         |> Expect.equal smallGraph
+            , test "Follow graph" <|
+                \_ ->
+                    Day12.pathsFromCave [] [ Start ] smallGraph
+                        |> Expect.equal [ [ Start ] ]
             , test "As given" <|
                 \_ -> Day12.solution1 testInput |> Expect.equal 226
             , test "From puzzle input" <|
