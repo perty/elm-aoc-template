@@ -126,8 +126,24 @@ connectCaves caveConnection dict =
         currentB =
             Dict.get keyB dict |> Maybe.withDefault []
     in
-    Dict.insert keyA (caveB :: currentA) dict
-        |> Dict.insert keyB (caveA :: currentB)
+    case caveA of
+        Start ->
+            Dict.insert keyA (caveB :: currentA) dict
+
+        End ->
+            Dict.insert keyB (caveA :: currentB) dict
+
+        _ ->
+            case caveB of
+                Start ->
+                    Dict.insert keyB (caveA :: currentB) dict
+
+                End ->
+                    Dict.insert keyA (caveB :: currentA) dict
+
+                _ ->
+                    Dict.insert keyA (caveB :: currentA) dict
+                        |> Dict.insert keyB (caveA :: currentB)
 
 
 caveToString : Cave -> String

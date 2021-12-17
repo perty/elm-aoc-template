@@ -45,11 +45,10 @@ smallExample10Paths =
 
 smallGraph =
     Dict.fromList
-        [ ( "A", [ End, Small "b", Small "c", Start ] )
-        , ( "b", [ End, Small "d", Big "A", Start ] )
+        [ ( "A", [ End, Small "b", Small "c" ] )
+        , ( "b", [ End, Small "d", Big "A" ] )
         , ( "c", [ Big "A" ] )
         , ( "d", [ Small "b" ] )
-        , ( "end", [ Small "b", Big "A" ] )
         , ( "start", [ Small "b", Big "A" ] )
         ]
 
