@@ -19,7 +19,12 @@ suite =
                         |> Expect.equal smallGraph
             , test "Follow graph" <|
                 \_ ->
-                    Day12.pathsFromCave [] [ Start ] smallGraph
+                    let
+                        smallCaveRule : Cave -> List Cave -> Bool
+                        smallCaveRule head v =
+                            List.member head v
+                    in
+                    Day12.pathsFromCave smallCaveRule [] [ Start ] smallGraph
                         |> Expect.equal follow
             , test "As given" <|
                 \_ -> Day12.solution1 testInput |> Expect.equal 226
@@ -27,10 +32,12 @@ suite =
                 \_ -> Day12.solution1 Day12.puzzleInput |> Expect.equal 3369
             ]
         , describe "Problem 2"
-            [ test "As given" <|
-                \_ -> Day12.solution2 testInput |> Expect.equal -1
+            [ test "Small example" <|
+                \_ -> Day12.solution2 smallExample10Paths |> Expect.equal 36
+            , test "As given" <|
+                \_ -> Day12.solution2 testInput |> Expect.equal 3509
             , test "From puzzle input" <|
-                \_ -> Day12.solution2 Day12.puzzleInput |> Expect.equal -1
+                \_ -> Day12.solution2 Day12.puzzleInput |> Expect.equal 85883
             ]
         ]
 

@@ -3,6 +3,7 @@ module Day12 exposing (Cave(..), CaveConnection(..), CaveGraph, caveToString, ch
 import Dict exposing (Dict)
 import Html exposing (Html)
 import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, oneOf, problem, succeed, symbol)
+import Set
 
 
 solution1 : String -> Int
@@ -164,11 +165,16 @@ caveToString cave =
 
 solve1 : List CaveConnection -> Int
 solve1 connections =
-    pathsFromCave [] [ Start ] (toGraph connections) |> List.length
+    let
+        smallCaveRule : Cave -> List Cave -> Bool
+        smallCaveRule head v =
+            List.member head v
+    in
+    pathsFromCave smallCaveRule [] [ Start ] (toGraph connections) |> List.length
 
 
-pathsFromCave : List Cave -> List Cave -> CaveGraph -> List (List Cave)
-pathsFromCave visited caves caveGraph =
+pathsFromCave : (Cave -> List Cave -> Bool) -> List Cave -> List Cave -> CaveGraph -> List (List Cave)
+pathsFromCave smallCaveRule visited caves caveGraph =
     case caves of
         [] ->
             []
@@ -178,7 +184,7 @@ pathsFromCave visited caves caveGraph =
                 End ->
                     let
                         breadth =
-                            pathsFromCave visited tail caveGraph
+                            pathsFromCave smallCaveRule visited tail caveGraph
 
                         success =
                             List.append [ End ] visited
@@ -190,43 +196,63 @@ pathsFromCave visited caves caveGraph =
                         children =
                             Dict.get "start" caveGraph |> Maybe.withDefault []
                     in
-                    pathsFromCave [ Start ] children caveGraph
+                    pathsFromCave smallCaveRule [ Start ] children caveGraph
 
                 Big name ->
                     let
                         breadth =
-                            pathsFromCave visited tail caveGraph
+                            pathsFromCave smallCaveRule visited tail caveGraph
 
                         children =
                             Dict.get name caveGraph |> Maybe.withDefault []
 
                         depth =
-                            pathsFromCave (head :: visited) children caveGraph
+                            pathsFromCave smallCaveRule (head :: visited) children caveGraph
                     in
                     List.append depth breadth
 
                 Small name ->
                     let
                         breadth =
-                            pathsFromCave visited tail caveGraph
+                            pathsFromCave smallCaveRule visited tail caveGraph
 
                         children =
                             Dict.get name caveGraph |> Maybe.withDefault []
                     in
-                    if List.member (Small name) visited then
+                    if smallCaveRule head visited then
                         breadth
 
                     else
                         let
                             depth =
-                                pathsFromCave (head :: visited) children caveGraph
+                                pathsFromCave smallCaveRule (head :: visited) children caveGraph
                         in
                         List.append depth breadth
 
 
 solve2 : List CaveConnection -> Int
-solve2 _ =
-    4711
+solve2 connections =
+    let
+        smallCaveRule : Cave -> List Cave -> Bool
+        smallCaveRule head visited =
+            let
+                isSmall c =
+                    case c of
+                        Small name ->
+                            Just name
+
+                        _ ->
+                            Nothing
+
+                smallCaves =
+                    List.filterMap (\c -> isSmall c) (head :: visited)
+
+                uniqueSmalls =
+                    Set.fromList smallCaves |> Set.size
+            in
+            List.length smallCaves - uniqueSmalls > 1
+    in
+    pathsFromCave smallCaveRule [] [ Start ] (toGraph connections) |> List.length
 
 
 main : Html Never
