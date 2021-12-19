@@ -1,9 +1,7 @@
 module Day13Test exposing (suite, testInput, testInputParsed)
 
-import Array
-import Day13 exposing (Fold(..), Point(..))
+import Day13
 import Expect exposing (Expectation)
-import Matrix
 import Test exposing (..)
 
 
@@ -11,22 +9,8 @@ suite : Test
 suite =
     describe "Day13"
         [ describe "Problem 1"
-            [ test "Fold up" <|
-                \_ -> Day13.foldUp 7 foldMatrix |> Expect.equal folded7UpMatrix
-            , test "Fold left" <|
-                \_ -> Day13.foldLeft 5 folded7UpMatrix |> Expect.equal folded5Left
-            , test "Parser" <|
+            [ test "Parser" <|
                 \_ -> Day13.parse testInput |> Expect.equal testInputParsed
-            , test "Point to matrix" <|
-                \_ ->
-                    let
-                        sheet =
-                            Day13.parse foldInput
-
-                        matrix =
-                            Matrix.initialize 15 11 (\_ _ -> 0)
-                    in
-                    Day13.pointsToMatrix sheet.points matrix |> Expect.equal foldMatrix
             , test "As given" <|
                 \_ -> Day13.solution1 testInput |> Expect.equal 17
             , test "From puzzle input" <|
@@ -66,50 +50,6 @@ fold along y=7
     """
 
 
-foldMatrix =
-    Array.fromList
-        [ Array.fromList [ 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1 ]
-        , Array.fromList [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        ]
-
-
-folded7UpMatrix =
-    Array.fromList
-        [ Array.fromList [ 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0 ]
-        , Array.fromList [ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1 ]
-        , Array.fromList [ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-        ]
-
-
-folded5Left =
-    Array.fromList
-        [ Array.fromList [ 1, 1, 1, 1, 1 ]
-        , Array.fromList [ 1, 0, 0, 0, 1 ]
-        , Array.fromList [ 1, 0, 0, 0, 1 ]
-        , Array.fromList [ 1, 0, 0, 0, 1 ]
-        , Array.fromList [ 1, 1, 1, 1, 1 ]
-        , Array.fromList [ 0, 0, 0, 0, 0 ]
-        , Array.fromList [ 0, 0, 0, 0, 0 ]
-        ]
-
-
 testInput =
     """
 6,10
@@ -138,24 +78,24 @@ fold along x=5
 
 testInputParsed =
     { points =
-        [ Point 6 10
-        , Point 0 14
-        , Point 9 10
-        , Point 0 3
-        , Point 10 4
-        , Point 4 11
-        , Point 6 0
-        , Point 6 12
-        , Point 4 1
-        , Point 0 13
-        , Point 10 12
-        , Point 3 4
-        , Point 3 0
-        , Point 8 4
-        , Point 1 10
-        , Point 2 14
-        , Point 8 10
-        , Point 9 0
+        [ ( 6, 10 )
+        , ( 0, 14 )
+        , ( 9, 10 )
+        , ( 0, 3 )
+        , ( 10, 4 )
+        , ( 4, 11 )
+        , ( 6, 0 )
+        , ( 6, 12 )
+        , ( 4, 1 )
+        , ( 0, 13 )
+        , ( 10, 12 )
+        , ( 3, 4 )
+        , ( 3, 0 )
+        , ( 8, 4 )
+        , ( 1, 10 )
+        , ( 2, 14 )
+        , ( 8, 10 )
+        , ( 9, 0 )
         ]
-    , folds = [ Up 7, Left 5 ]
+    , folds = [ Day13.Up 7, Day13.Left 5 ]
     }

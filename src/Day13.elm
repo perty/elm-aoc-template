@@ -1,10 +1,9 @@
-module Day13 exposing (Fold(..), Point(..), foldLeft, foldUp, main, parse, pointsToMatrix, puzzleInput, solution1, solution2, solve1, solve2)
+module Day13 exposing (Fold(..), Point, main, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
-import Array
 import Html exposing (Html)
-import Matrix exposing (Matrix)
-import Parser exposing ((|.), (|=), Parser, int, oneOf, spaces, succeed, symbol)
+import Parser exposing ((|.), (|=), Parser, andThen, int, oneOf, spaces, succeed, symbol)
 import Parser.Extras
+import Set exposing (Set)
 
 
 solution1 : String -> Int
@@ -27,8 +26,8 @@ type alias Sheet =
     }
 
 
-type Point
-    = Point Int Int
+type alias Point =
+    ( Int, Int )
 
 
 type Fold
@@ -59,12 +58,23 @@ parseSheet =
         |= Parser.Extras.many parseFold
 
 
+type PointPair
+    = PointPair Int Int
+
+
 parsePoint : Parser Point
 parsePoint =
-    succeed Point
+    (succeed PointPair
         |= int
         |. symbol ","
         |= int
+    )
+        |> andThen toPoint
+
+
+toPoint : PointPair -> Parser Point
+toPoint (PointPair row col) =
+    succeed ( row, col )
 
 
 parseFold : Parser Fold
@@ -81,86 +91,40 @@ parseFold =
 
 solve1 : Sheet -> Int
 solve1 sheet =
-    let
-        ( maxRow, maxCol ) =
-            List.foldl (\(Point r c) ( mr, mc ) -> ( Basics.max r mr, Basics.max c mc )) ( 0, 0 ) sheet.points
-
-        matrix =
-            Matrix.initialize (maxRow + 1) (maxCol + 1) (\_ _ -> 0)
-                |> pointsToMatrix sheet.points
-
-        doFold f m =
-            case f of
-                Up n ->
-                    foldUp n m
-
-                Left n ->
-                    foldLeft n m
-    in
     case List.head sheet.folds of
         Just f ->
-            doFold f matrix |> foldl (+) 0 (+)
+            foldPoints f (Set.fromList sheet.points) |> Set.size
 
         _ ->
             -1
 
 
-pointsToMatrix : List Point -> Matrix Int -> Matrix Int
-pointsToMatrix points matrix =
-    List.foldl (\(Point r c) m -> Matrix.set m r c 1) matrix points
+foldPoints : Fold -> Set Point -> Set Point
+foldPoints fold points =
+    case fold of
+        Up n ->
+            Set.map (\p -> foldPointUp n p) points
+
+        Left n ->
+            Set.map (\p -> foldPointLeft n p) points
 
 
-foldl : (a -> b -> b) -> b -> (b -> b -> b) -> Matrix.Matrix a -> b
-foldl function acc accJoin matrix =
-    Array.foldl (\ma a -> Array.foldl function acc ma |> accJoin a) acc matrix
+foldPointUp : Int -> Point -> Point
+foldPointUp foldRow ( row, col ) =
+    if row <= foldRow then
+        ( row, col )
+
+    else
+        ( foldRow + (foldRow - row), col )
 
 
-foldUp : Int -> Matrix Int -> Matrix Int
-foldUp foldRow matrix =
-    let
-        folder r c e =
-            if e == 1 then
-                1
+foldPointLeft : Int -> Point -> Point
+foldPointLeft foldCol ( row, col ) =
+    if col <= foldCol then
+        ( row, col )
 
-            else
-                let
-                    sourceRow =
-                        foldRow + (foldRow - r)
-                in
-                case Matrix.get matrix sourceRow c of
-                    Just 1 ->
-                        1
-
-                    _ ->
-                        0
-    in
-    matrix
-        |> Matrix.indexedMap folder
-        |> Array.slice 0 foldRow
-
-
-foldLeft : Int -> Matrix Int -> Matrix Int
-foldLeft foldCol matrix =
-    let
-        folder r c e =
-            if e == 1 then
-                1
-
-            else
-                let
-                    sourceCol =
-                        foldCol + (foldCol - c)
-                in
-                case Matrix.get matrix r sourceCol of
-                    Just 1 ->
-                        1
-
-                    _ ->
-                        0
-    in
-    matrix
-        |> Matrix.indexedMap folder
-        |> Array.map (\a -> Array.slice 0 foldCol a)
+    else
+        ( row, foldCol + (foldCol - col) )
 
 
 solve2 : Sheet -> Int
