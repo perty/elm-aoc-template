@@ -15,21 +15,55 @@ suite =
                 \_ -> Day13.foldUp 7 foldMatrix |> Expect.equal folded7UpMatrix
             , test "Fold left" <|
                 \_ -> Day13.foldLeft 5 folded7UpMatrix |> Expect.equal folded5Left
-            , only <|
-                test "Parser" <|
-                    \_ -> Day13.parse testInput |> Expect.equal testInputParsed
+            , test "Parser" <|
+                \_ -> Day13.parse testInput |> Expect.equal testInputParsed
+            , test "Point to matrix" <|
+                \_ ->
+                    let
+                        sheet =
+                            Day13.parse foldInput
+
+                        matrix =
+                            Matrix.initialize 15 11 (\_ _ -> 0)
+                    in
+                    Day13.pointsToMatrix sheet.points matrix |> Expect.equal foldMatrix
             , test "As given" <|
-                \_ -> Day13.solution1 testInput |> Expect.equal 5
+                \_ -> Day13.solution1 testInput |> Expect.equal 17
             , test "From puzzle input" <|
-                \_ -> Day13.solution1 Day13.puzzleInput |> Expect.equal 8060
+                \_ -> Day13.solution1 Day13.puzzleInput |> Expect.equal -1
             ]
         , describe "Problem 2"
             [ test "As given" <|
-                \_ -> Day13.solution2 testInput |> Expect.equal 12
+                \_ -> Day13.solution2 testInput |> Expect.equal -1
             , test "From puzzle input" <|
-                \_ -> Day13.solution2 Day13.puzzleInput |> Expect.equal 21577
+                \_ -> Day13.solution2 Day13.puzzleInput |> Expect.equal -1
             ]
         ]
+
+
+foldInput =
+    """
+0,3
+0,6
+0,9
+1,4
+3,0
+4,3
+4,8
+4,10
+10,1
+10,6   
+10,8   
+10,9
+11,4
+12,6
+12,10
+13,0
+14,0
+14,2
+
+fold along y=7
+    """
 
 
 foldMatrix =
