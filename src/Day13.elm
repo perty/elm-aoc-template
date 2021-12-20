@@ -81,10 +81,10 @@ parseFold : Parser Fold
 parseFold =
     oneOf
         [ succeed Up
-            |. symbol "fold along y="
+            |. symbol "fold along x="
             |= int
         , succeed Left
-            |. symbol "fold along x="
+            |. symbol "fold along y="
             |= int
         ]
 
@@ -95,7 +95,7 @@ solve1 sheet =
         Just f ->
             foldPoints f (Set.fromList sheet.points) |> Set.size
 
-        _ ->
+        Nothing ->
             -1
 
 

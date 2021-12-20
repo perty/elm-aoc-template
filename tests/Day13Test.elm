@@ -14,7 +14,7 @@ suite =
             , test "As given" <|
                 \_ -> Day13.solution1 testInput |> Expect.equal 17
             , test "From puzzle input" <|
-                \_ -> Day13.solution1 Day13.puzzleInput |> Expect.equal -1
+                \_ -> Day13.solution1 Day13.puzzleInput |> Expect.equal 712
             ]
         , describe "Problem 2"
             [ test "As given" <|
@@ -97,5 +97,5 @@ testInputParsed =
         , ( 8, 10 )
         , ( 9, 0 )
         ]
-    , folds = [ Day13.Up 7, Day13.Left 5 ]
+    , folds = [ Day13.Left 7, Day13.Up 5 ]
     }
