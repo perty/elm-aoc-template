@@ -1,15 +1,17 @@
-module Day14 exposing (..)
+module Day14 exposing (Input, ParsedRule(..), Rules, count, getPair, insert, insertMany, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
 
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Parser exposing ((|.), (|=), Parser, andThen, int, oneOf, spaces, succeed, symbol)
+import List.Extra as List
+import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, int, spaces, succeed, symbol)
 import Parser.Extras
-import Set exposing (Set)
 
 
 solution1 : String -> Int
 solution1 input =
-    5
+    input
+        |> parse
+        |> solve1
 
 
 solution2 : String -> Int
@@ -19,47 +21,114 @@ solution2 input =
         |> solve2
 
 
-parse : String -> Int
-parse string =
-    32
-
-
-solve1 : String -> List ( Int, Char )
-solve1 template =
-    let
-        inserted =
-            insert 0 template
-    in
-    count (String.toList inserted) Dict.empty
-
-
-type alias Rule =
+type alias Rules =
     Dict String Char
 
 
-rules =
-    Dict.fromList
-        [ ( "CH", 'B' )
-        , ( "HH", 'N' )
-        , ( "CB", 'H' )
-        , ( "NH", 'C' )
-        , ( "HB", 'C' )
-        , ( "HC", 'B' )
-        , ( "HN", 'C' )
-        , ( "NN", 'C' )
-        , ( "BH", 'H' )
-        , ( "NC", 'B' )
-        , ( "NB", 'B' )
-        , ( "BN", 'B' )
-        , ( "BB", 'N' )
-        , ( "BC", 'B' )
-        , ( "CC", 'N' )
-        , ( "CN", 'C' )
-        ]
+type alias Input =
+    { template : String
+    , rules : Rules
+    }
 
 
-matchPair : String -> Maybe Char
-matchPair string =
+parse : String -> Input
+parse string =
+    case Parser.run parser string of
+        Ok result ->
+            result
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "Parser error" error
+            in
+            Debug.todo "parse failed"
+
+
+parser : Parser Input
+parser =
+    succeed Input
+        |. spaces
+        |= getChompedString (chompWhile Char.isAlpha)
+        |. spaces
+        |= (Parser.Extras.many parseRule |> andThen toDict)
+
+
+toDict : List ( String, Char ) -> Parser (Dict String Char)
+toDict list =
+    succeed (Dict.fromList list)
+
+
+type ParsedRule
+    = ParsedRule String Char
+
+
+parseRule : Parser ( String, Char )
+parseRule =
+    (succeed ParsedRule
+        |= getChompedString (chompWhile Char.isAlpha)
+        |. spaces
+        |. symbol "->"
+        |. spaces
+        |= parseChar
+    )
+        |> andThen parsedRuleToTuple
+
+
+parsedRuleToTuple : ParsedRule -> Parser ( String, Char )
+parsedRuleToTuple (ParsedRule s c) =
+    succeed ( s, c )
+
+
+parseChar : Parser Char
+parseChar =
+    getChompedString (chompWhile Char.isAlpha)
+        |> andThen stringToChar
+
+
+stringToChar : String -> Parser Char
+stringToChar string =
+    succeed
+        (string
+            |> String.toList
+            |> List.head
+            |> Maybe.withDefault '?'
+        )
+
+
+solve1 : Input -> Int
+solve1 input =
+    let
+        inserted =
+            insertMany input.rules 10 input.template
+
+        countResult =
+            count (String.toList inserted) Dict.empty
+
+        smallest =
+            List.head countResult
+                |> Maybe.withDefault ( 0, '?' )
+                |> Tuple.first
+
+        largest =
+            List.last countResult
+                |> Maybe.withDefault ( 0, '?' )
+                |> Tuple.first
+    in
+    largest - smallest
+
+
+insertMany : Rules -> Int -> String -> String
+insertMany rules int template =
+    if int <= 0 then
+        template
+
+    else
+        insert rules 0 template |> insertMany rules (int - 1)
+
+
+matchPair : Rules -> String -> Maybe Char
+matchPair rules string =
     Dict.get string rules
 
 
@@ -68,13 +137,13 @@ getPair int string =
     String.slice int (int + 2) string
 
 
-insert : Int -> String -> String
-insert pos template =
-    case getPair pos template |> matchPair of
+insert : Rules -> Int -> String -> String
+insert rules pos template =
+    case getPair pos template |> matchPair rules of
         Just char ->
             String.slice pos (pos + 1) template
                 ++ String.fromChar char
-                ++ insert (pos + 1) template
+                ++ insert rules (pos + 1) template
 
         Nothing ->
             String.slice pos (pos + 1) template
@@ -90,7 +159,7 @@ count chars dict =
             count tail (Dict.insert head (1 + (Dict.get head dict |> Maybe.withDefault 0)) dict)
 
 
-solve2 : Int -> Int
+solve2 : Input -> Int
 solve2 _ =
     4711
 
