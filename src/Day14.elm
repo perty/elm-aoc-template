@@ -1,9 +1,9 @@
-module Day14 exposing (Input, ParsedRule(..), Rules, count, insertMany, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
+module Day14 exposing (Input, ParsedRule(..), Rules, count, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
 
 import Dict exposing (Dict)
 import Html exposing (Html)
 import List.Extra as List
-import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, int, spaces, succeed, symbol)
+import Parser exposing ((|.), (|=), Parser, andThen, chompWhile, getChompedString, spaces, succeed, symbol)
 import Parser.Extras
 
 
@@ -100,7 +100,7 @@ solve1 : Input -> Int
 solve1 input =
     let
         inserted =
-            insertMany input.rules 10 (String.toList input.template)
+            List.foldl (\_ acc -> insert input.rules acc) (String.toList input.template) (List.range 1 10)
 
         countResult =
             count inserted Dict.empty
@@ -118,27 +118,18 @@ solve1 input =
     largest - smallest
 
 
-insertMany : Rules -> Int -> List Char -> List Char
-insertMany rules int template =
-    if int <= 0 then
-        template
-
-    else
-        insert2 rules template |> insertMany rules (int - 1)
-
-
 matchPair : Rules -> String -> Maybe Char
 matchPair rules string =
     Dict.get string rules
 
 
-insert2 : Rules -> List Char -> List Char
-insert2 rules chars =
+insert : Rules -> List Char -> List Char
+insert rules chars =
     case chars of
         first :: second :: tail ->
             case matchPair rules (String.fromList [ first, second ]) of
                 Just char ->
-                    first :: char :: insert2 rules (second :: tail)
+                    first :: char :: insert rules (second :: tail)
 
                 Nothing ->
                     [ first, second ]
@@ -161,8 +152,27 @@ count chars dict =
 
 
 solve2 : Input -> Int
-solve2 _ =
-    4711
+solve2 input =
+    let
+        inserted =
+            List.foldl (\_ acc -> insert input.rules acc)
+                (String.toList input.template)
+                (List.range 1 20)
+
+        countResult =
+            count inserted Dict.empty
+
+        smallest =
+            List.head countResult
+                |> Maybe.withDefault ( 0, '?' )
+                |> Tuple.first
+
+        largest =
+            List.last countResult
+                |> Maybe.withDefault ( 0, '?' )
+                |> Tuple.first
+    in
+    largest - smallest
 
 
 main : Html Never
