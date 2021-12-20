@@ -13,7 +13,7 @@ solution1 input =
         |> solve1
 
 
-solution2 : String -> Int
+solution2 : String -> Set Point
 solution2 input =
     input
         |> parse
@@ -127,19 +127,15 @@ foldPointLeft foldCol ( row, col ) =
         ( row, foldCol + (foldCol - col) )
 
 
-solve2 : Sheet -> Int
-solve2 _ =
-    4711
+solve2 : Sheet -> Set Point
+solve2 sheet =
+    List.foldl (\f acc -> foldPoints f acc) (Set.fromList sheet.points) sheet.folds
 
 
 main : Html Never
 main =
     Html.div []
-        [ Html.p []
-            [ Html.text (String.fromInt (solution1 puzzleInput))
-            ]
-        , Html.p [] [ Html.text (String.fromInt (solution2 puzzleInput)) ]
-        ]
+        []
 
 
 puzzleInput : String
