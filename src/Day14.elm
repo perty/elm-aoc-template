@@ -1,4 +1,4 @@
-module Day14 exposing (Input, ParsedRule(..), Rules, count, getPair, insert, insertMany, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
+module Day14 exposing (Input, ParsedRule(..), Rules, count, insertMany, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
 
 import Dict exposing (Dict)
 import Html exposing (Html)
@@ -100,10 +100,10 @@ solve1 : Input -> Int
 solve1 input =
     let
         inserted =
-            insertMany input.rules 10 input.template
+            insertMany input.rules 10 (String.toList input.template)
 
         countResult =
-            count (String.toList inserted) Dict.empty
+            count inserted Dict.empty
 
         smallest =
             List.head countResult
@@ -118,13 +118,13 @@ solve1 input =
     largest - smallest
 
 
-insertMany : Rules -> Int -> String -> String
+insertMany : Rules -> Int -> List Char -> List Char
 insertMany rules int template =
     if int <= 0 then
         template
 
     else
-        insert rules 0 template |> insertMany rules (int - 1)
+        insert2 rules template |> insertMany rules (int - 1)
 
 
 matchPair : Rules -> String -> Maybe Char
@@ -132,21 +132,22 @@ matchPair rules string =
     Dict.get string rules
 
 
-getPair : Int -> String -> String
-getPair int string =
-    String.slice int (int + 2) string
+insert2 : Rules -> List Char -> List Char
+insert2 rules chars =
+    case chars of
+        first :: second :: tail ->
+            case matchPair rules (String.fromList [ first, second ]) of
+                Just char ->
+                    first :: char :: insert2 rules (second :: tail)
 
+                Nothing ->
+                    [ first, second ]
 
-insert : Rules -> Int -> String -> String
-insert rules pos template =
-    case getPair pos template |> matchPair rules of
-        Just char ->
-            String.slice pos (pos + 1) template
-                ++ String.fromChar char
-                ++ insert rules (pos + 1) template
+        [ single ] ->
+            [ single ]
 
-        Nothing ->
-            String.slice pos (pos + 1) template
+        [] ->
+            []
 
 
 count : List Char -> Dict Char Int -> List ( Int, Char )
