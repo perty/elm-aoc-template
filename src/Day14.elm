@@ -1,5 +1,6 @@
 module Day14 exposing (..)
 
+import Dict exposing (Dict)
 import Html exposing (Html)
 import Parser exposing ((|.), (|=), Parser, andThen, int, oneOf, spaces, succeed, symbol)
 import Parser.Extras
@@ -8,9 +9,7 @@ import Set exposing (Set)
 
 solution1 : String -> Int
 solution1 input =
-    input
-        |> parse
-        |> solve1
+    5
 
 
 solution2 : String -> Int
@@ -25,9 +24,70 @@ parse string =
     32
 
 
-solve1 : Int -> Int
-solve1 _ =
-    42
+solve1 : String -> List ( Int, Char )
+solve1 template =
+    let
+        inserted =
+            insert 0 template
+    in
+    count (String.toList inserted) Dict.empty
+
+
+type alias Rule =
+    Dict String Char
+
+
+rules =
+    Dict.fromList
+        [ ( "CH", 'B' )
+        , ( "HH", 'N' )
+        , ( "CB", 'H' )
+        , ( "NH", 'C' )
+        , ( "HB", 'C' )
+        , ( "HC", 'B' )
+        , ( "HN", 'C' )
+        , ( "NN", 'C' )
+        , ( "BH", 'H' )
+        , ( "NC", 'B' )
+        , ( "NB", 'B' )
+        , ( "BN", 'B' )
+        , ( "BB", 'N' )
+        , ( "BC", 'B' )
+        , ( "CC", 'N' )
+        , ( "CN", 'C' )
+        ]
+
+
+matchPair : String -> Maybe Char
+matchPair string =
+    Dict.get string rules
+
+
+getPair : Int -> String -> String
+getPair int string =
+    String.slice int (int + 2) string
+
+
+insert : Int -> String -> String
+insert pos template =
+    case getPair pos template |> matchPair of
+        Just char ->
+            String.slice pos (pos + 1) template
+                ++ String.fromChar char
+                ++ insert (pos + 1) template
+
+        Nothing ->
+            String.slice pos (pos + 1) template
+
+
+count : List Char -> Dict Char Int -> List ( Int, Char )
+count chars dict =
+    case chars of
+        [] ->
+            Dict.toList dict |> List.map (\( c, n ) -> ( n, c )) |> List.sort
+
+        head :: tail ->
+            count tail (Dict.insert head (1 + (Dict.get head dict |> Maybe.withDefault 0)) dict)
 
 
 solve2 : Int -> Int

@@ -1,6 +1,7 @@
 module Day14Test exposing (suite, testInput, testInputParsed)
 
 import Day14
+import Dict
 import Expect exposing (Expectation)
 import Test exposing (..)
 
@@ -9,7 +10,23 @@ suite : Test
 suite =
     describe "Day14"
         [ describe "Problem 1"
-            [ test "Parser" <|
+            [ test "An insert" <|
+                \_ -> Day14.insert 0 "NNCB" |> Expect.equal "NCNBCHB"
+            , test "More inserts" <|
+                \_ ->
+                    Day14.insert 0 "NNCB"
+                        |> Day14.insert 0
+                        |> Day14.insert 0
+                        |> Day14.insert 0
+                        |> Expect.equal "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
+            , test "Count" <|
+                \_ ->
+                    Day14.count (String.toList "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB") Dict.empty
+                        |> Expect.equal []
+            , only <|
+                test "Solve 1" <|
+                    \_ -> Day14.solve1 "NNCB" |> Expect.equal []
+            , test "Parser" <|
                 \_ -> Day14.parse testInput |> Expect.equal testInputParsed
             , test "As given" <|
                 \_ -> Day14.solution1 testInput |> Expect.equal 1588
