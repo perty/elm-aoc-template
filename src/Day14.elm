@@ -203,7 +203,7 @@ solve2 input =
         inserted =
             List.foldl (\_ acc -> nextStep input.rules acc)
                 (initPolymers (String.toList input.template) Dict.empty)
-                (List.range 1 39)
+                (List.range 1 40)
 
         toElements : Dict ( Char, Char ) Int -> Dict Char Int
         toElements polymerPairs =
@@ -215,7 +215,7 @@ solve2 input =
                 (\( c1, c2 ) v acc ->
                     acc
                         |> Dict.insert c1 (v + (Dict.get c1 acc |> Maybe.withDefault 0))
-                        |> Dict.insert c2 (v + (Dict.get c1 acc |> Maybe.withDefault 0))
+                        |> Dict.insert c2 (v + (Dict.get c2 acc |> Maybe.withDefault 0))
                 )
                 Dict.empty
                 polymerPairs
