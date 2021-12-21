@@ -31,6 +31,19 @@ suite =
                     Day14.nextStep testInputParsed.rules (Day14.initPolymers (String.toList "NNCB") Dict.empty)
                         |> Day14.nextStep testInputParsed.rules
                         |> Expect.equal expectedNextStep2
+            , test "Next step 3" <|
+                \_ ->
+                    Day14.nextStep testInputParsed.rules (Day14.initPolymers (String.toList "NNCB") Dict.empty)
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Expect.equal expectedNextStep3
+            , test "Next step 4" <|
+                \_ ->
+                    Day14.nextStep testInputParsed.rules (Day14.initPolymers (String.toList "NNCB") Dict.empty)
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Expect.equal expectedNextStep4
             , only <|
                 test "As given" <|
                     \_ -> Day14.solution2 testInput |> Expect.equal 2188189693529
@@ -46,6 +59,14 @@ expectedNextStep =
 
 expectedNextStep2 =
     Day14.initPolymers (String.toList "NBCCNBBBCBHCB") Dict.empty
+
+
+expectedNextStep3 =
+    Day14.initPolymers (String.toList "NBBBCNCCNBBNBNBBCHBHHBCHB") Dict.empty
+
+
+expectedNextStep4 =
+    Day14.initPolymers (String.toList "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB") Dict.empty
 
 
 testInput =

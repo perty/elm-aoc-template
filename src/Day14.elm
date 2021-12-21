@@ -181,15 +181,18 @@ nextStep rules polymerPairs =
         keys =
             Dict.keys polymerPairs
 
-        incPair pair dict =
-            Dict.insert pair (1 + (Dict.get pair dict |> Maybe.withDefault 0)) dict
+        incPair n pair dict =
+            Dict.insert pair (n + (Dict.get pair dict |> Maybe.withDefault 0)) dict
 
         step ( c1, c2 ) dict =
             let
                 cPrim =
                     matchPair rules (String.fromList [ c1, c2 ]) |> Maybe.withDefault '?'
+
+                pairs =
+                    Dict.get ( c1, c2 ) polymerPairs |> Maybe.withDefault 0
             in
-            incPair ( c1, cPrim ) dict |> incPair ( cPrim, c2 )
+            incPair pairs ( c1, cPrim ) dict |> incPair pairs ( cPrim, c2 )
     in
     List.foldl (\k dict -> step k dict) Dict.empty keys
 
@@ -200,15 +203,19 @@ solve2 input =
         inserted =
             List.foldl (\_ acc -> nextStep input.rules acc)
                 (initPolymers (String.toList input.template) Dict.empty)
-                (List.range 1 40)
+                (List.range 1 39)
 
         toElements : Dict ( Char, Char ) Int -> Dict Char Int
         toElements polymerPairs =
+            let
+                _ =
+                    Debug.log "result" polymerPairs
+            in
             Dict.foldl
                 (\( c1, c2 ) v acc ->
                     acc
-                        |> Dict.insert c1 (1 + (Dict.get c1 acc |> Maybe.withDefault 0))
-                        |> Dict.insert c2 (1 + (Dict.get c1 acc |> Maybe.withDefault 0))
+                        |> Dict.insert c1 (v + (Dict.get c1 acc |> Maybe.withDefault 0))
+                        |> Dict.insert c2 (v + (Dict.get c1 acc |> Maybe.withDefault 0))
                 )
                 Dict.empty
                 polymerPairs
