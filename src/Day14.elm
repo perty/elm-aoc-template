@@ -212,10 +212,12 @@ solve2 input =
                     Debug.log "result" polymerPairs
             in
             Dict.foldl
-                (\( c1, c2 ) v acc ->
-                    acc
-                        |> Dict.insert c1 (v + (Dict.get c1 acc |> Maybe.withDefault 0))
-                        |> Dict.insert c2 (v + (Dict.get c2 acc |> Maybe.withDefault 0))
+                (\( c1, c2 ) v acc1 ->
+                    let
+                        acc2 =
+                            Dict.insert c1 (v + (Dict.get c1 acc1 |> Maybe.withDefault 0)) acc1
+                    in
+                    Dict.insert c2 (v + (Dict.get c2 acc2 |> Maybe.withDefault 0)) acc2
                 )
                 Dict.empty
                 polymerPairs
