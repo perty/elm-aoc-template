@@ -22,13 +22,30 @@ suite =
                 \_ -> Day14.solution1 Day14.puzzleInput |> Expect.equal 3259
             ]
         , describe "Problem 2"
-            [ only <|
+            [ test "Next step" <|
+                \_ ->
+                    Day14.nextStep testInputParsed.rules (Day14.initPolymers (String.toList "NNCB") Dict.empty)
+                        |> Expect.equal expectedNextStep
+            , test "Next step 2" <|
+                \_ ->
+                    Day14.nextStep testInputParsed.rules (Day14.initPolymers (String.toList "NNCB") Dict.empty)
+                        |> Day14.nextStep testInputParsed.rules
+                        |> Expect.equal expectedNextStep2
+            , only <|
                 test "As given" <|
                     \_ -> Day14.solution2 testInput |> Expect.equal 2188189693529
             , test "From puzzle input" <|
                 \_ -> Day14.solution2 Day14.puzzleInput |> Expect.equal -1
             ]
         ]
+
+
+expectedNextStep =
+    Day14.initPolymers (String.toList "NCNBCHB") Dict.empty
+
+
+expectedNextStep2 =
+    Day14.initPolymers (String.toList "NBCCNBBBCBHCB") Dict.empty
 
 
 testInput =

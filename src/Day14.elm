@@ -1,4 +1,4 @@
-module Day14 exposing (Input, ParsedRule(..), Rules, count, main, matchPair, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
+module Day14 exposing (Input, ParsedRule(..), Rules, count, initPolymers, main, matchPair, nextStep, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
 
 import Dict exposing (Dict)
 import Html exposing (Html)
@@ -151,25 +151,87 @@ count chars dict =
             count tail (Dict.insert head (1 + (Dict.get head dict |> Maybe.withDefault 0)) dict)
 
 
+type alias PolymerPairs =
+    Dict ( Char, Char ) Int
+
+
+initPolymers : List Char -> PolymerPairs -> PolymerPairs
+initPolymers chars pairs =
+    case chars of
+        [] ->
+            pairs
+
+        [ _ ] ->
+            pairs
+
+        head :: second :: tail ->
+            let
+                now =
+                    Dict.get ( head, second ) pairs |> Maybe.withDefault 0
+            in
+            initPolymers (second :: tail) (Dict.insert ( head, second ) (1 + now) pairs)
+
+
+nextStep : Rules -> PolymerPairs -> PolymerPairs
+nextStep rules polymerPairs =
+    let
+        _ =
+            Debug.log "polys " polymerPairs
+
+        keys =
+            Dict.keys polymerPairs
+
+        incPair pair dict =
+            Dict.insert pair (1 + (Dict.get pair dict |> Maybe.withDefault 0)) dict
+
+        step ( c1, c2 ) dict =
+            let
+                cPrim =
+                    matchPair rules (String.fromList [ c1, c2 ]) |> Maybe.withDefault '?'
+            in
+            incPair ( c1, cPrim ) dict |> incPair ( cPrim, c2 )
+    in
+    List.foldl (\k dict -> step k dict) Dict.empty keys
+
+
 solve2 : Input -> Int
 solve2 input =
     let
         inserted =
-            List.foldl (\_ acc -> insert input.rules acc)
-                (String.toList input.template)
-                (List.range 1 20)
+            List.foldl (\_ acc -> nextStep input.rules acc)
+                (initPolymers (String.toList input.template) Dict.empty)
+                (List.range 1 40)
+
+        toElements : Dict ( Char, Char ) Int -> Dict Char Int
+        toElements polymerPairs =
+            Dict.foldl
+                (\( c1, c2 ) v acc ->
+                    acc
+                        |> Dict.insert c1 (1 + (Dict.get c1 acc |> Maybe.withDefault 0))
+                        |> Dict.insert c2 (1 + (Dict.get c1 acc |> Maybe.withDefault 0))
+                )
+                Dict.empty
+                polymerPairs
+
+        countElements d =
+            let
+                _ =
+                    Debug.log "elements" d
+            in
+            Dict.toList d
+                |> List.map (\( c, n ) -> ( n, c ))
 
         countResult =
-            count inserted Dict.empty
+            toElements inserted |> countElements
 
         smallest =
             List.head countResult
-                |> Maybe.withDefault ( 0, '?' )
+                |> Maybe.withDefault ( -1, '?' )
                 |> Tuple.first
 
         largest =
             List.last countResult
-                |> Maybe.withDefault ( 0, '?' )
+                |> Maybe.withDefault ( -1, '?' )
                 |> Tuple.first
     in
     largest - smallest
