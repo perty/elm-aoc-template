@@ -181,7 +181,7 @@ nextStep rules polymerPairs =
         keys =
             Dict.keys polymerPairs
 
-        incPair n pair dict =
+        insertPair n pair dict =
             Dict.insert pair (n + (Dict.get pair dict |> Maybe.withDefault 0)) dict
 
         step ( c1, c2 ) dict =
@@ -192,7 +192,7 @@ nextStep rules polymerPairs =
                 pairs =
                     Dict.get ( c1, c2 ) polymerPairs |> Maybe.withDefault 0
             in
-            incPair pairs ( c1, cPrim ) dict |> incPair pairs ( cPrim, c2 )
+            insertPair pairs ( c1, cPrim ) dict |> insertPair pairs ( cPrim, c2 )
     in
     List.foldl (\k dict -> step k dict) Dict.empty keys
 
@@ -229,7 +229,7 @@ solve2 input =
                 |> List.map (\( c, n ) -> ( n, c ))
 
         countResult =
-            toElements inserted |> countElements
+            toElements inserted |> countElements |> List.sort
 
         smallest =
             List.head countResult
