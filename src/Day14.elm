@@ -100,9 +100,22 @@ solve1 : Input -> Int
 solve1 input =
     let
         inserted =
-            List.foldl (\_ acc -> insert input.rules acc) (String.toList input.template) (List.range 1 10)
+            List.foldl
+                (\_ acc ->
+                    let
+                        _ =
+                            Debug.log "chars" <| String.fromList acc
+                    in
+                    insert input.rules acc
+                )
+                (String.toList input.template)
+                (List.range 1 10)
 
         countResult =
+            let
+                _ =
+                    Debug.log "result 1" <| String.fromList inserted
+            in
             count inserted Dict.empty
 
         smallest =
@@ -203,7 +216,7 @@ solve2 input =
         inserted =
             List.foldl (\_ acc -> nextStep input.rules acc)
                 (initPolymers (String.toList input.template) Dict.empty)
-                (List.range 1 40)
+                (List.range 1 9)
 
         toElements : Dict ( Char, Char ) Int -> Dict Char Int
         toElements polymerPairs =
