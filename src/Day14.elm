@@ -1,4 +1,4 @@
-module Day14 exposing (Input, ParsedRule(..), Rules, count, initPolymers, main, matchPair, nextStep, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict)
+module Day14 exposing (Input, ParsedRule(..), Rules, count, initPolymers, main, matchPair, nextStep, parse, parseChar, parseRule, parsedRuleToTuple, parser, puzzleInput, solution1, solution2, solve1, solve2, stringToChar, toDict, toElements)
 
 import Dict exposing (Dict)
 import Html exposing (Html)
@@ -210,30 +210,55 @@ nextStep rules polymerPairs =
     List.foldl (\k dict -> step k dict) Dict.empty keys
 
 
+upDateDict : Dict comparable v -> comparable -> v -> (v -> v -> v) -> Dict comparable v
+upDateDict dict key value function =
+    case Dict.get key dict of
+        Nothing ->
+            Dict.insert key value dict
+
+        Just current ->
+            Dict.insert key (function current value) dict
+
+
+toElements : Dict ( Char, Char ) Int -> Dict Char Int
+toElements polymerPairs =
+    let
+        _ =
+            Debug.log "result" polymerPairs
+
+        f1 ( c1, _ ) v a =
+            Dict.insert c1 (v + (Dict.get c1 a |> Maybe.withDefault 0)) a
+
+        f2 ( _, c2 ) v a =
+            Dict.insert c2 (v + (Dict.get c2 a |> Maybe.withDefault 0)) a
+
+        firsts =
+            Debug.log "first" <|
+                Dict.foldl f1 Dict.empty polymerPairs
+
+        seconds =
+            Debug.log "seconds" <|
+                Dict.foldl f2 Dict.empty polymerPairs
+    in
+    Dict.foldl
+        (\( c1, c2 ) v acc1 ->
+            let
+                acc2 =
+                    Dict.insert c1 (v + (Dict.get c1 acc1 |> Maybe.withDefault 0)) acc1
+            in
+            Dict.insert c2 (v + (Dict.get c2 acc2 |> Maybe.withDefault 0)) acc2
+        )
+        Dict.empty
+        polymerPairs
+
+
 solve2 : Input -> Int
 solve2 input =
     let
         inserted =
             List.foldl (\_ acc -> nextStep input.rules acc)
                 (initPolymers (String.toList input.template) Dict.empty)
-                (List.range 1 9)
-
-        toElements : Dict ( Char, Char ) Int -> Dict Char Int
-        toElements polymerPairs =
-            let
-                _ =
-                    Debug.log "result" polymerPairs
-            in
-            Dict.foldl
-                (\( c1, c2 ) v acc1 ->
-                    let
-                        acc2 =
-                            Dict.insert c1 (v + (Dict.get c1 acc1 |> Maybe.withDefault 0)) acc1
-                    in
-                    Dict.insert c2 (v + (Dict.get c2 acc2 |> Maybe.withDefault 0)) acc2
-                )
-                Dict.empty
-                polymerPairs
+                (List.range 1 10)
 
         countElements d =
             let
