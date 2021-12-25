@@ -51,15 +51,14 @@ suite =
                         |> Day14.nextStep testInputParsed.rules
                         |> Day14.nextStep testInputParsed.rules
                         |> Expect.equal (expectedNextSteps 9)
-            , only <|
-                test "count" <|
-                    \_ ->
-                        Day14.toElements (expectedNextSteps 9)
-                            |> Expect.equal expectedCount
+            , test "count" <|
+                \_ ->
+                    Day14.toElements 'N' (expectedNextSteps 9)
+                        |> Expect.equal expectedCount
             , test "As given" <|
                 \_ -> Day14.solution2 testInput |> Expect.equal 2188189693529
             , test "From puzzle input" <|
-                \_ -> Day14.solution2 Day14.puzzleInput |> Expect.equal -1
+                \_ -> Day14.solution2 Day14.puzzleInput |> Expect.equal 3459174981021
             ]
         ]
 
@@ -86,25 +85,6 @@ expectedNextStepsData =
 
 expectedCount =
     Dict.fromList [ ( 'B', 1749 ), ( 'C', 298 ), ( 'H', 161 ), ( 'N', 865 ) ]
-
-
-res =
-    [ ( ( 'B', 'B' ), 812 )
-    , ( ( 'B', 'C' ), 120 )
-    , ( ( 'B', 'H' ), 81 )
-    , ( ( 'B', 'N' ), 735 )
-    , ( ( 'C', 'B' ), 115 )
-    , ( ( 'C', 'C' ), 60 )
-    , ( ( 'C', 'H' ), 21 )
-    , ( ( 'C', 'N' ), 102 )
-    , ( ( 'H', 'B' ), 26 )
-    , ( ( 'H', 'C' ), 76 )
-    , ( ( 'H', 'H' ), 32 )
-    , ( ( 'H', 'N' ), 27 )
-    , ( ( 'N', 'B' ), 796 )
-    , ( ( 'N', 'C' ), 42 )
-    , ( ( 'N', 'H' ), 27 )
-    ]
 
 
 testInput =
