@@ -1,4 +1,4 @@
-module Day15 exposing (Cave, main, parse, puzzleInput, solution1, solution2, solve1, solve2)
+module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
 import Html exposing (Html)
 import Matrix exposing (Matrix)
@@ -18,22 +18,156 @@ solution2 input =
         |> solve2
 
 
+type NodeState
+    = Initial Int
+    | UnvisitedState { risk : Int, value : Int }
+    | Visited Int
+
+
 type alias Cave =
-    Matrix Int
+    Matrix NodeState
 
 
 parse : String -> Cave
-parse string =
+parse _ =
     Matrix.empty
 
 
 solve1 : Cave -> Int
-solve1 cave =
+solve1 _ =
     42
 
 
+type alias Point =
+    { row : Int
+    , col : Int
+    }
+
+
+type alias Unvisited =
+    { point : Point
+    , value : Int
+    }
+
+
+type alias State =
+    { cave : Cave
+    , currentNode : Unvisited
+    , unvisited : List Unvisited
+    }
+
+
+lowest : State -> Unvisited
+lowest state =
+    lowestUnvisited state.unvisited
+
+
+loopUntilGoal : Point -> Point -> State -> Int
+loopUntilGoal startPoint goalPoint state =
+    let
+        newMatrix =
+            Matrix.set state.cave startPoint.row startPoint.col (Visited currentValue)
+
+        newUnvisited =
+            List.filter (\u -> u.point /= startPoint) state.unvisited
+
+        currentValue : Int
+        currentValue =
+            case Matrix.get state.cave startPoint.row startPoint.col of
+                Just (UnvisitedState u) ->
+                    u.value
+
+                Just (Initial v) ->
+                    v
+
+                Just (Visited v) ->
+                    v
+
+                _ ->
+                    Debug.log "Gone wrong" 99
+    in
+    if startPoint == goalPoint then
+        currentValue
+
+    else
+        let
+            next : State
+            next =
+                nextState
+                    { state
+                        | cave = newMatrix
+                        , currentNode = { point = startPoint, value = currentValue }
+                        , unvisited = newUnvisited
+                    }
+
+            nextPoint : Unvisited
+            nextPoint =
+                lowest next
+        in
+        loopUntilGoal nextPoint.point goalPoint next
+
+
+nextState : State -> State
+nextState state =
+    let
+        _ =
+            Debug.log "state" state
+
+        ns : List Point
+        ns =
+            neighbours state.currentNode.point
+
+        checkNode : Point -> State -> State
+        checkNode p acc =
+            case Matrix.get state.cave p.row p.col of
+                Just (Initial v) ->
+                    { acc
+                        | cave =
+                            Matrix.set acc.cave
+                                p.row
+                                p.col
+                                (UnvisitedState { risk = v, value = v + state.currentNode.value })
+                        , unvisited = { point = p, value = v + state.currentNode.value } :: acc.unvisited
+                    }
+
+                Just (UnvisitedState u) ->
+                    let
+                        newValue =
+                            Basics.min (u.risk + state.currentNode.value) u.value
+                    in
+                    { acc
+                        | cave =
+                            Matrix.set acc.cave
+                                p.row
+                                p.col
+                                (UnvisitedState { u | value = newValue })
+                        , unvisited = { point = p, value = newValue } :: acc.unvisited
+                    }
+
+                _ ->
+                    acc
+    in
+    List.foldl checkNode state ns
+
+
+neighbours : Point -> List Point
+neighbours point =
+    [ Point (point.row + 1) point.col
+    , Point (point.row - 1) point.col
+    , Point point.row (point.col + 1)
+    , Point point.row (point.col - 1)
+    ]
+
+
+lowestUnvisited : List Unvisited -> Unvisited
+lowestUnvisited unvisited =
+    List.sortBy .value unvisited
+        |> List.head
+        |> Maybe.withDefault (Unvisited (Point 0 0) -10)
+
+
 solve2 : Cave -> Int
-solve2 cave =
+solve2 _ =
     4711
 
 
