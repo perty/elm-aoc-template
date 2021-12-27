@@ -15,25 +15,23 @@ suite =
                 \_ ->
                     Day15.nextState miniState
                         |> Expect.equal expectedStep1
-            , only <|
-                test "nextState 2" <|
-                    \_ ->
-                        (miniState
-                            |> Day15.nextState
-                            |> (\s -> Day15.nextState { s | currentNode = Day15.lowest s })
-                        )
-                            |> Expect.equal expectedStep2
-            , only <|
-                test "Small example" <|
-                    \_ ->
-                        Day15.loopUntilGoal (Day15.Point 0 0) (Day15.Point 2 3) miniState
-                            |> Expect.equal 14
+            , test "nextState 2" <|
+                \_ ->
+                    (miniState
+                        |> Day15.nextState
+                        |> (\s -> Day15.nextState { s | currentNode = Day15.lowest s })
+                    )
+                        |> Expect.equal expectedStep2
+            , test "Small example" <|
+                \_ ->
+                    Day15.loopUntilGoal (Day15.Point 0 0) (Day15.Point 2 3) miniState
+                        |> Expect.equal 14
             , test "Parser" <|
                 \_ -> Day15.parse testInput |> Expect.equal parsedTestInput
             , test "As given" <|
                 \_ -> Day15.solution1 testInput |> Expect.equal 40
             , test "From puzzle input" <|
-                \_ -> Day15.solution1 Day15.puzzleInput |> Expect.equal -1
+                \_ -> Day15.solution1 Day15.puzzleInput |> Expect.equal 790
             ]
         , describe "Problem 2"
             [ test "As given" <|
@@ -108,5 +106,17 @@ testInput =
 """
 
 
+parsedTestInput : Matrix NodeState
 parsedTestInput =
-    Matrix.empty
+    Array.fromList
+        [ Array.fromList [ Initial 1, Initial 1, Initial 6, Initial 3, Initial 7, Initial 5, Initial 1, Initial 7, Initial 4, Initial 2 ]
+        , Array.fromList [ Initial 1, Initial 3, Initial 8, Initial 1, Initial 3, Initial 7, Initial 3, Initial 6, Initial 7, Initial 2 ]
+        , Array.fromList [ Initial 2, Initial 1, Initial 3, Initial 6, Initial 5, Initial 1, Initial 1, Initial 3, Initial 2, Initial 8 ]
+        , Array.fromList [ Initial 3, Initial 6, Initial 9, Initial 4, Initial 9, Initial 3, Initial 1, Initial 5, Initial 6, Initial 9 ]
+        , Array.fromList [ Initial 7, Initial 4, Initial 6, Initial 3, Initial 4, Initial 1, Initial 7, Initial 1, Initial 1, Initial 1 ]
+        , Array.fromList [ Initial 1, Initial 3, Initial 1, Initial 9, Initial 1, Initial 2, Initial 8, Initial 1, Initial 3, Initial 7 ]
+        , Array.fromList [ Initial 1, Initial 3, Initial 5, Initial 9, Initial 9, Initial 1, Initial 2, Initial 4, Initial 2, Initial 1 ]
+        , Array.fromList [ Initial 3, Initial 1, Initial 2, Initial 5, Initial 4, Initial 2, Initial 1, Initial 6, Initial 3, Initial 9 ]
+        , Array.fromList [ Initial 1, Initial 2, Initial 9, Initial 3, Initial 1, Initial 3, Initial 8, Initial 5, Initial 2, Initial 1 ]
+        , Array.fromList [ Initial 2, Initial 3, Initial 1, Initial 1, Initial 9, Initial 4, Initial 4, Initial 5, Initial 8, Initial 1 ]
+        ]

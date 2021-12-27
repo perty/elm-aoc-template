@@ -1,5 +1,6 @@
 module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
+import Array
 import Html exposing (Html)
 import Matrix exposing (Matrix)
 
@@ -29,13 +30,44 @@ type alias Cave =
 
 
 parse : String -> Cave
-parse _ =
-    Matrix.empty
+parse string =
+    string
+        |> String.trim
+        |> String.lines
+        |> List.map parseLine
+        |> Array.fromList
+
+
+charToInt : Char -> Maybe Int
+charToInt char =
+    if Char.isDigit char then
+        Char.toCode char - 0x30 |> Just
+
+    else
+        Nothing
+
+
+parseLine : String -> Array.Array NodeState
+parseLine string =
+    string
+        |> String.toList
+        |> List.map (\c -> charToInt c |> Maybe.withDefault -99)
+        |> List.map Initial
+        |> Array.fromList
 
 
 solve1 : Cave -> Int
-solve1 _ =
-    42
+solve1 cave =
+    let
+        ( sizeRow, sizeCol ) =
+            Matrix.size cave
+    in
+    loopUntilGoal (Point 0 0)
+        (Point (sizeRow - 1) (sizeCol - 1))
+        { cave = Matrix.set cave 0 0 (Visited 0)
+        , unvisited = []
+        , currentNode = { point = Point 0 0, value = 0 }
+        }
 
 
 type alias Point =
@@ -84,7 +116,7 @@ loopUntilGoal startPoint goalPoint state =
                     v
 
                 _ ->
-                    Debug.log "Gone wrong" 99
+                    Debug.todo "Gone wrong"
     in
     if startPoint == goalPoint then
         currentValue
@@ -110,9 +142,6 @@ loopUntilGoal startPoint goalPoint state =
 nextState : State -> State
 nextState state =
     let
-        _ =
-            Debug.log "state" state
-
         ns : List Point
         ns =
             neighbours state.currentNode.point
