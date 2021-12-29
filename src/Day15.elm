@@ -1,4 +1,4 @@
-module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1, solve2)
+module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1, solve2)
 
 import Array
 import Html exposing (Html)
@@ -198,6 +198,37 @@ lowestUnvisited unvisited =
 solve2 : Cave -> Int
 solve2 _ =
     4711
+
+
+increaseBy5 : Cave -> Cave
+increaseBy5 cave =
+    let
+        ( sizeX, sizeY ) =
+            Matrix.size cave
+
+        current x y =
+            Matrix.get cave (Basics.modBy sizeX x) (Basics.modBy sizeY y)
+                |> Maybe.withDefault (Initial -999)
+
+        add v x y =
+            Basics.modBy 9 (v + x // sizeX + y // sizeY)
+
+        newValue v =
+            if v == 0 then
+                9
+
+            else
+                v
+
+        init x y =
+            case current x y of
+                Initial v ->
+                    Initial (newValue (add v x y))
+
+                _ ->
+                    Initial -9999
+    in
+    Matrix.initialize (sizeX * 5) (sizeY * 5) init
 
 
 main : Html Never
