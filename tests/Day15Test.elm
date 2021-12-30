@@ -34,15 +34,14 @@ suite =
                 \_ -> Day15.solution1 Day15.puzzleInput |> Expect.equal 790
             ]
         , describe "Problem 2"
-            [ only <|
-                test "Increase grid 5 times" <|
-                    \_ ->
-                        Day15.increaseBy5 (Day15.parse testInput)
-                            |> Expect.equal (Day15.parse testInput2)
+            [ test "Increase grid 5 times" <|
+                \_ ->
+                    Day15.increaseBy5 (Day15.parse testInput)
+                        |> Expect.equal (Day15.parse testInput2)
             , test "As given" <|
-                \_ -> Day15.solution1 testInput2 |> Expect.equal 315
+                \_ -> Day15.solution2 testInput |> Expect.equal 315
             , test "From puzzle input" <|
-                \_ -> Day15.solution2 Day15.puzzleInput |> Expect.equal -1
+                \_ -> Day15.solution2 Day15.puzzleInput |> Expect.equal 2998
             ]
         ]
 

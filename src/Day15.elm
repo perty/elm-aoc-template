@@ -1,4 +1,4 @@
-module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1, solve2)
+module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1)
 
 import Array
 import Html exposing (Html)
@@ -16,7 +16,8 @@ solution2 : String -> Int
 solution2 input =
     input
         |> parse
-        |> solve2
+        |> increaseBy5
+        |> solve1
 
 
 type NodeState
@@ -193,11 +194,6 @@ lowestUnvisited unvisited =
     List.sortBy .value unvisited
         |> List.head
         |> Maybe.withDefault (Unvisited (Point 0 0) -10)
-
-
-solve2 : Cave -> Int
-solve2 _ =
-    4711
 
 
 increaseBy5 : Cave -> Cave
