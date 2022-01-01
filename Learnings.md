@@ -44,3 +44,18 @@ This was something that I found very hard. The boards were 5 rows of numbers, se
 
 I solved this by counting the number of rows and using the `loop` function. See Day4.
 
+## Performance
+
+I never before worried about performance in my web apps since it has never been a problem. But with these problems
+it becomes an issue. So a learning was that you can use Chrome dev tools and search the call tree for bottlenecks.
+Too bad it is the compiled JavaScript you see and not the Elm code you wrote. Another thing is that when the execution 
+time went up to 30 sek, the performance tool hanged.
+
+### Things I changed
+
+The first thing I noticed was that I kept a list of nodes and wanted to get the most promising node to try next. So I
+sorted them a picked the first. But it took too long so I did what I really wanted and roamed the list for best using 
+a foldl. That cut half of the time.
+
+Another half was found when I studied the list filter function. The comparison seemed to take long despite it was only
+a structure of two integers, row and column. Splitting them, cut half the time.

@@ -102,7 +102,7 @@ loopUntilGoal startPoint goalPoint state =
             Matrix.set state.cave startPoint.row startPoint.col (Visited currentValue)
 
         newUnvisited =
-            List.filter (\u -> u.point /= startPoint) state.unvisited
+            List.filter (\u -> u.point.row /= startPoint.row || u.point.col /= startPoint.col) state.unvisited
 
         currentValue : Int
         currentValue =
@@ -117,9 +117,9 @@ loopUntilGoal startPoint goalPoint state =
                     v
 
                 _ ->
-                    Debug.todo "Gone wrong"
+                    -9999
     in
-    if startPoint == goalPoint then
+    if startPoint.row == goalPoint.row && startPoint.col == goalPoint.col then
         currentValue
 
     else
@@ -127,10 +127,9 @@ loopUntilGoal startPoint goalPoint state =
             next : State
             next =
                 nextState
-                    { state
-                        | cave = newMatrix
-                        , currentNode = { point = startPoint, value = currentValue }
-                        , unvisited = newUnvisited
+                    { cave = newMatrix
+                    , currentNode = { point = startPoint, value = currentValue }
+                    , unvisited = newUnvisited
                     }
 
             nextPoint : Unvisited
@@ -143,57 +142,62 @@ loopUntilGoal startPoint goalPoint state =
 nextState : State -> State
 nextState state =
     let
-        ns : List Point
-        ns =
-            neighbours state.currentNode.point
+        row =
+            state.currentNode.point.row
 
-        checkNode : Point -> State -> State
-        checkNode p acc =
-            case Matrix.get state.cave p.row p.col of
-                Just (Initial v) ->
-                    { acc
-                        | cave =
-                            Matrix.set acc.cave
-                                p.row
-                                p.col
-                                (UnvisitedState { risk = v, value = v + state.currentNode.value })
-                        , unvisited = { point = p, value = v + state.currentNode.value } :: acc.unvisited
-                    }
-
-                Just (UnvisitedState u) ->
-                    let
-                        newValue =
-                            Basics.min (u.risk + state.currentNode.value) u.value
-                    in
-                    { acc
-                        | cave =
-                            Matrix.set acc.cave
-                                p.row
-                                p.col
-                                (UnvisitedState { u | value = newValue })
-                        , unvisited = { point = p, value = newValue } :: acc.unvisited
-                    }
-
-                _ ->
-                    acc
+        col =
+            state.currentNode.point.col
     in
-    List.foldl checkNode state ns
+    state
+        |> checkNode (Point (row + 1) col)
+        |> checkNode (Point (row - 1) col)
+        |> checkNode (Point row (col + 1))
+        |> checkNode (Point row (col - 1))
 
 
-neighbours : Point -> List Point
-neighbours point =
-    [ Point (point.row + 1) point.col
-    , Point (point.row - 1) point.col
-    , Point point.row (point.col + 1)
-    , Point point.row (point.col - 1)
-    ]
+checkNode : Point -> State -> State
+checkNode p acc =
+    case Matrix.get acc.cave p.row p.col of
+        Just (Initial v) ->
+            { cave =
+                Matrix.set acc.cave
+                    p.row
+                    p.col
+                    (UnvisitedState { risk = v, value = v + acc.currentNode.value })
+            , unvisited = { point = p, value = v + acc.currentNode.value } :: acc.unvisited
+            , currentNode = acc.currentNode
+            }
+
+        Just (UnvisitedState u) ->
+            let
+                newValue =
+                    Basics.min (u.risk + acc.currentNode.value) u.value
+            in
+            { cave =
+                Matrix.set acc.cave
+                    p.row
+                    p.col
+                    (UnvisitedState { u | value = newValue })
+            , unvisited = { point = p, value = newValue } :: acc.unvisited
+            , currentNode = acc.currentNode
+            }
+
+        _ ->
+            acc
 
 
 lowestUnvisited : List Unvisited -> Unvisited
 lowestUnvisited unvisited =
-    List.sortBy .value unvisited
-        |> List.head
-        |> Maybe.withDefault (Unvisited (Point 0 0) -10)
+    List.foldl
+        (\u acc ->
+            if u.value < acc.value then
+                u
+
+            else
+                acc
+        )
+        (Unvisited (Point 0 0) 9999)
+        unvisited
 
 
 increaseBy5 : Cave -> Cave
@@ -233,7 +237,6 @@ main =
         [ Html.p []
             [ Html.text (String.fromInt (solution1 puzzleInput))
             ]
-        , Html.p [] [ Html.text (String.fromInt (solution2 puzzleInput)) ]
         ]
 
 
