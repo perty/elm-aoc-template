@@ -59,3 +59,6 @@ a foldl. That cut half of the time.
 
 Another half was found when I studied the list filter function. The comparison seemed to take long despite it was only
 a structure of two integers, row and column. Splitting them, cut half the time.
+
+A change from list to array representation cut a few seconds as well. But not conclusive. Guess that a lot of time
+is consumed in managing arrays or lists.

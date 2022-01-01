@@ -19,7 +19,7 @@ suite =
                 \_ ->
                     (miniState
                         |> Day15.nextState
-                        |> (\s -> Day15.nextState { s | currentNode = Day15.lowest s })
+                        |> (\s -> Day15.nextState { s | currentNode = Day15.lowestUnvisited s.unvisited })
                     )
                         |> Expect.equal expectedStep2
             , test "Small example" <|
@@ -50,7 +50,7 @@ miniState : Day15.State
 miniState =
     { cave = miniCave
     , currentNode = { point = { row = 0, col = 0 }, value = 0 }
-    , unvisited = []
+    , unvisited = Array.empty
     }
 
 
@@ -63,6 +63,7 @@ miniCave =
         ]
 
 
+expectedStep1 : Day15.State
 expectedStep1 =
     { cave =
         Array.fromList
@@ -72,12 +73,14 @@ expectedStep1 =
             ]
     , currentNode = { point = { col = 0, row = 0 }, value = 0 }
     , unvisited =
-        [ { point = { col = 1, row = 0 }, value = 2 }
-        , { point = { col = 0, row = 1 }, value = 1 }
-        ]
+        Array.fromList
+            [ { point = { col = 0, row = 1 }, value = 1 }
+            , { point = { col = 1, row = 0 }, value = 2 }
+            ]
     }
 
 
+expectedStep2 : Day15.State
 expectedStep2 =
     { cave =
         Array.fromList
@@ -87,11 +90,12 @@ expectedStep2 =
             ]
     , currentNode = { point = { col = 0, row = 1 }, value = 1 }
     , unvisited =
-        [ { point = { col = 1, row = 1 }, value = 4 }
-        , { point = { col = 0, row = 2 }, value = 3 }
-        , { point = { col = 1, row = 0 }, value = 2 }
-        , { point = { col = 0, row = 1 }, value = 1 }
-        ]
+        Array.fromList
+            [ { point = { col = 0, row = 1 }, value = 1 }
+            , { point = { col = 1, row = 0 }, value = 2 }
+            , { point = { col = 0, row = 2 }, value = 3 }
+            , { point = { col = 1, row = 1 }, value = 4 }
+            ]
     }
 
 

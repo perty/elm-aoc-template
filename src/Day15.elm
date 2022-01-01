@@ -1,6 +1,6 @@
-module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5, loopUntilGoal, lowest, main, nextState, parse, puzzleInput, solution1, solution2, solve1)
+module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5, loopUntilGoal, lowestUnvisited, main, nextState, parse, puzzleInput, solution1, solution2, solve1)
 
-import Array
+import Array exposing (Array)
 import Html exposing (Html)
 import Matrix exposing (Matrix)
 
@@ -66,7 +66,7 @@ solve1 cave =
     loopUntilGoal (Point 0 0)
         (Point (sizeRow - 1) (sizeCol - 1))
         { cave = Matrix.set cave 0 0 (Visited 0)
-        , unvisited = []
+        , unvisited = Array.empty
         , currentNode = { point = Point 0 0, value = 0 }
         }
 
@@ -86,13 +86,8 @@ type alias Unvisited =
 type alias State =
     { cave : Cave
     , currentNode : Unvisited
-    , unvisited : List Unvisited
+    , unvisited : Array Unvisited
     }
-
-
-lowest : State -> Unvisited
-lowest state =
-    lowestUnvisited state.unvisited
 
 
 loopUntilGoal : Point -> Point -> State -> Int
@@ -102,7 +97,7 @@ loopUntilGoal startPoint goalPoint state =
             Matrix.set state.cave startPoint.row startPoint.col (Visited currentValue)
 
         newUnvisited =
-            List.filter (\u -> u.point.row /= startPoint.row || u.point.col /= startPoint.col) state.unvisited
+            Array.filter (\u -> u.point.row /= startPoint.row || u.point.col /= startPoint.col) state.unvisited
 
         currentValue : Int
         currentValue =
@@ -134,7 +129,7 @@ loopUntilGoal startPoint goalPoint state =
 
             nextPoint : Unvisited
             nextPoint =
-                lowest next
+                lowestUnvisited next.unvisited
         in
         loopUntilGoal nextPoint.point goalPoint next
 
@@ -164,7 +159,7 @@ checkNode p acc =
                     p.row
                     p.col
                     (UnvisitedState { risk = v, value = v + acc.currentNode.value })
-            , unvisited = { point = p, value = v + acc.currentNode.value } :: acc.unvisited
+            , unvisited = Array.push { point = p, value = v + acc.currentNode.value } acc.unvisited
             , currentNode = acc.currentNode
             }
 
@@ -178,7 +173,7 @@ checkNode p acc =
                     p.row
                     p.col
                     (UnvisitedState { u | value = newValue })
-            , unvisited = { point = p, value = newValue } :: acc.unvisited
+            , unvisited = Array.push { point = p, value = newValue } acc.unvisited
             , currentNode = acc.currentNode
             }
 
@@ -186,9 +181,9 @@ checkNode p acc =
             acc
 
 
-lowestUnvisited : List Unvisited -> Unvisited
+lowestUnvisited : Array Unvisited -> Unvisited
 lowestUnvisited unvisited =
-    List.foldl
+    Array.foldl
         (\u acc ->
             if u.value < acc.value then
                 u
