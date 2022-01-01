@@ -15,13 +15,6 @@ suite =
                 \_ ->
                     Day15.nextState miniState
                         |> Expect.equal expectedStep1
-            , test "nextState 2" <|
-                \_ ->
-                    (miniState
-                        |> Day15.nextState
-                        |> (\s -> Day15.nextState { s | currentNode = Day15.lowestUnvisited s.unvisited })
-                    )
-                        |> Expect.equal expectedStep2
             , test "Small example" <|
                 \_ ->
                     Day15.loopUntilGoal (Day15.Point 0 0) (Day15.Point 2 3) miniState
@@ -50,7 +43,7 @@ miniState : Day15.State
 miniState =
     { cave = miniCave
     , currentNode = { point = { row = 0, col = 0 }, value = 0 }
-    , unvisited = Array.empty
+    , unvisited = []
     }
 
 
@@ -72,30 +65,7 @@ expectedStep1 =
             , Array.fromList [ Day15.Initial 2, Day15.Initial 1, Day15.Initial 3, Day15.Initial 6 ]
             ]
     , currentNode = { point = { col = 0, row = 0 }, value = 0 }
-    , unvisited =
-        Array.fromList
-            [ { point = { col = 0, row = 1 }, value = 1 }
-            , { point = { col = 1, row = 0 }, value = 2 }
-            ]
-    }
-
-
-expectedStep2 : Day15.State
-expectedStep2 =
-    { cave =
-        Array.fromList
-            [ Array.fromList [ Day15.Visited 1, Day15.UnvisitedState { risk = 2, value = 2 }, Day15.Initial 6, Day15.Initial 3 ]
-            , Array.fromList [ Day15.UnvisitedState { risk = 1, value = 1 }, Day15.UnvisitedState { risk = 3, value = 4 }, Day15.Initial 8, Day15.Initial 1 ]
-            , Array.fromList [ Day15.UnvisitedState { risk = 2, value = 3 }, Day15.Initial 1, Day15.Initial 3, Day15.Initial 6 ]
-            ]
-    , currentNode = { point = { col = 0, row = 1 }, value = 1 }
-    , unvisited =
-        Array.fromList
-            [ { point = { col = 0, row = 1 }, value = 1 }
-            , { point = { col = 1, row = 0 }, value = 2 }
-            , { point = { col = 0, row = 2 }, value = 3 }
-            , { point = { col = 1, row = 1 }, value = 4 }
-            ]
+    , unvisited = [ { point = { col = 1, row = 0 }, value = 2 }, { point = { col = 0, row = 1 }, value = 1 } ]
     }
 
 

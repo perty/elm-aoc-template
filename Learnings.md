@@ -62,3 +62,6 @@ a structure of two integers, row and column. Splitting them, cut half the time.
 
 A change from list to array representation cut a few seconds as well. But not conclusive. Guess that a lot of time
 is consumed in managing arrays or lists.
+
+Found a small improvement when using a list for unvisited nodes but not `foldl` for searching for the lowest, instead just 
+use a simple function that takes head and tail of a list.
