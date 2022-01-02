@@ -65,3 +65,5 @@ is consumed in managing arrays or lists.
 
 Found a small improvement when using a list for unvisited nodes but not `foldl` for searching for the lowest, instead just 
 use a simple function that takes head and tail of a list.
+
+Using a Set for maintaining the set of unvisited nodes, instead of Array or List, shaved of a few seconds.
