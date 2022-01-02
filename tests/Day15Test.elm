@@ -4,6 +4,7 @@ import Array
 import Day15 exposing (NodeState(..))
 import Expect exposing (Expectation)
 import Matrix exposing (Matrix)
+import Set
 import Test exposing (..)
 
 
@@ -17,8 +18,8 @@ suite =
                         |> Expect.equal expectedStep1
             , test "Small example" <|
                 \_ ->
-                    Day15.loopUntilGoal (Day15.Point 0 0) (Day15.Point 2 3) miniState
-                        |> Expect.equal 14
+                    Day15.loopUntilGoal ( 0, 0, 0 ) (Day15.Point 2 3) miniState
+                        |> Expect.equal 13
             , test "Parser" <|
                 \_ -> Day15.parse testInput |> Expect.equal parsedTestInput
             , test "As given" <|
@@ -42,17 +43,17 @@ suite =
 miniState : Day15.State
 miniState =
     { cave = miniCave
-    , currentNode = { point = { row = 0, col = 0 }, value = 0 }
-    , unvisited = []
+    , currentNode = ( 0, 0, 0 )
+    , unvisited = Set.empty
     }
 
 
 miniCave : Matrix Day15.NodeState
 miniCave =
     Array.fromList
-        [ Array.fromList [ Day15.Visited 1, Day15.Initial 2, Day15.Initial 6, Day15.Initial 3 ]
-        , Array.fromList [ Day15.Initial 1, Day15.Initial 3, Day15.Initial 8, Day15.Initial 1 ]
-        , Array.fromList [ Day15.Initial 2, Day15.Initial 1, Day15.Initial 3, Day15.Initial 6 ]
+        [ Array.fromList [ Visited 1, Initial 2, Initial 6, Initial 3 ]
+        , Array.fromList [ Initial 1, Initial 3, Initial 8, Initial 1 ]
+        , Array.fromList [ Initial 2, Initial 1, Initial 3, Initial 6 ]
         ]
 
 
@@ -60,12 +61,12 @@ expectedStep1 : Day15.State
 expectedStep1 =
     { cave =
         Array.fromList
-            [ Array.fromList [ Day15.Visited 1, Day15.UnvisitedState { risk = 2, value = 2 }, Day15.Initial 6, Day15.Initial 3 ]
-            , Array.fromList [ Day15.UnvisitedState { risk = 1, value = 1 }, Day15.Initial 3, Day15.Initial 8, Day15.Initial 1 ]
-            , Array.fromList [ Day15.Initial 2, Day15.Initial 1, Day15.Initial 3, Day15.Initial 6 ]
+            [ Array.fromList [ Visited 1, UnvisitedState { risk = 2, value = 2 }, Initial 6, Initial 3 ]
+            , Array.fromList [ UnvisitedState { risk = 1, value = 1 }, Initial 3, Initial 8, Initial 1 ]
+            , Array.fromList [ Initial 2, Initial 1, Initial 3, Initial 6 ]
             ]
-    , currentNode = { point = { col = 0, row = 0 }, value = 0 }
-    , unvisited = [ { point = { col = 1, row = 0 }, value = 2 }, { point = { col = 0, row = 1 }, value = 1 } ]
+    , currentNode = ( 0, 0, 0 )
+    , unvisited = Set.fromList [ ( 0, 1, 2 ), ( 1, 0, 1 ) ]
     }
 
 

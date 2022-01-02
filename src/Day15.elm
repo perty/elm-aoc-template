@@ -3,6 +3,7 @@ module Day15 exposing (Cave, NodeState(..), Point, State, Unvisited, increaseBy5
 import Array exposing (Array)
 import Html exposing (Html)
 import Matrix exposing (Matrix)
+import Set exposing (Set)
 
 
 solution1 : String -> Int
@@ -63,11 +64,11 @@ solve1 cave =
         ( sizeRow, sizeCol ) =
             Matrix.size cave
     in
-    loopUntilGoal (Point 0 0)
+    loopUntilGoal ( 0, 0, 0 )
         (Point (sizeRow - 1) (sizeCol - 1))
         { cave = Matrix.set cave 0 0 (Visited 0)
-        , unvisited = []
-        , currentNode = { point = Point 0 0, value = 0 }
+        , unvisited = Set.empty
+        , currentNode = ( 0, 0, 0 )
         }
 
 
@@ -78,53 +79,27 @@ type alias Point =
 
 
 type alias Unvisited =
-    { point : Point
-    , value : Int
-    }
+    ( Int, Int, Int )
 
 
 type alias State =
     { cave : Cave
     , currentNode : Unvisited
-    , unvisited : List Unvisited
+    , unvisited : Set Unvisited
     }
 
 
-loopUntilGoal : Point -> Point -> State -> Int
-loopUntilGoal startPoint goalPoint state =
+loopUntilGoal : Unvisited -> Point -> State -> Int
+loopUntilGoal ( row, col, value ) goalPoint state =
     let
         newMatrix =
-            Matrix.set state.cave startPoint.row startPoint.col (Visited currentValue)
+            Matrix.set state.cave row col (Visited value)
 
         newUnvisited unvisited =
-            case unvisited of
-                [] ->
-                    []
-
-                head :: tail ->
-                    if head.point.row /= startPoint.row || head.point.col /= startPoint.col then
-                        head :: newUnvisited tail
-
-                    else
-                        newUnvisited tail
-
-        currentValue : Int
-        currentValue =
-            case Matrix.get state.cave startPoint.row startPoint.col of
-                Just (UnvisitedState u) ->
-                    u.value
-
-                Just (Initial v) ->
-                    v
-
-                Just (Visited v) ->
-                    v
-
-                _ ->
-                    -9999
+            Set.remove ( row, col, value ) unvisited
     in
-    if startPoint.row == goalPoint.row && startPoint.col == goalPoint.col then
-        currentValue
+    if row == goalPoint.row && col == goalPoint.col then
+        value
 
     else
         let
@@ -132,25 +107,22 @@ loopUntilGoal startPoint goalPoint state =
             next =
                 nextState
                     { cave = newMatrix
-                    , currentNode = { point = startPoint, value = currentValue }
+                    , currentNode = ( row, col, value )
                     , unvisited = newUnvisited state.unvisited
                     }
 
             nextPoint : Unvisited
             nextPoint =
-                lowestUnvisited next.unvisited (Unvisited (Point 0 0) 99999)
+                lowestUnvisited next.unvisited
         in
-        loopUntilGoal nextPoint.point goalPoint next
+        loopUntilGoal nextPoint goalPoint next
 
 
 nextState : State -> State
 nextState state =
     let
-        row =
-            state.currentNode.point.row
-
-        col =
-            state.currentNode.point.col
+        ( row, col, _ ) =
+            state.currentNode
     in
     state
         |> checkNode (Point (row + 1) col)
@@ -161,28 +133,36 @@ nextState state =
 
 checkNode : Point -> State -> State
 checkNode p acc =
+    let
+        ( _, _, accValue ) =
+            acc.currentNode
+    in
     case Matrix.get acc.cave p.row p.col of
         Just (Initial v) ->
+            let
+                newValue =
+                    v + accValue
+            in
             { cave =
                 Matrix.set acc.cave
                     p.row
                     p.col
-                    (UnvisitedState { risk = v, value = v + acc.currentNode.value })
-            , unvisited = { point = p, value = v + acc.currentNode.value } :: acc.unvisited
+                    (UnvisitedState { risk = v, value = newValue })
+            , unvisited = Set.insert ( p.row, p.col, newValue ) acc.unvisited
             , currentNode = acc.currentNode
             }
 
         Just (UnvisitedState u) ->
             let
                 newValue =
-                    Basics.min (u.risk + acc.currentNode.value) u.value
+                    Basics.min (u.risk + accValue) u.value
             in
             { cave =
                 Matrix.set acc.cave
                     p.row
                     p.col
                     (UnvisitedState { u | value = newValue })
-            , unvisited = { point = p, value = newValue } :: acc.unvisited
+            , unvisited = Set.insert ( p.row, p.col, newValue ) acc.unvisited
             , currentNode = acc.currentNode
             }
 
@@ -190,18 +170,18 @@ checkNode p acc =
             acc
 
 
-lowestUnvisited : List Unvisited -> Unvisited -> Unvisited
-lowestUnvisited unvisited acc =
-    case unvisited of
-        [] ->
-            acc
-
-        head :: tail ->
-            if head.value < acc.value then
-                lowestUnvisited tail head
+lowestUnvisited : Set Unvisited -> Unvisited
+lowestUnvisited unvisited =
+    Set.foldl
+        (\( row, col, value ) ( accrow, acccol, accvalue ) ->
+            if value < accvalue then
+                ( row, col, value )
 
             else
-                lowestUnvisited tail acc
+                ( accrow, acccol, accvalue )
+        )
+        ( 0, 0, 99999 )
+        unvisited
 
 
 increaseBy5 : Cave -> Cave
