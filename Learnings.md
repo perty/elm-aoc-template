@@ -54,7 +54,7 @@ time went up to 30 sek, the performance tool hanged.
 ### Things I changed
 
 The first thing I noticed was that I kept a list of nodes and wanted to get the most promising node to try next. So I
-sorted them a picked the first. But it took too long so I did what I really wanted and roamed the list for best using 
+sorted them and picked the first. But it took too long, so I did what I really wanted and roamed the list for best using 
 a foldl. That cut half of the time.
 
 Another half was found when I studied the list filter function. The comparison seemed to take long despite it was only
