@@ -2,15 +2,12 @@ module Main exposing (Model, init, main, update, view)
 
 import Browser
 import Day1
+import Day2
 import Html
 
 
 type alias Model =
     String
-
-
-type Msg
-    = SwitchDay Int
 
 
 main =
@@ -26,14 +23,15 @@ init =
     "init"
 
 
-view : Model -> Html.Html Msg
+view : Model -> Html.Html msg
 view model =
     Html.div []
         [ Html.text model
         , Day1.view model
+        , Day2.view model
         ]
 
 
-update : Msg -> Model -> Model
+update : msg -> Model -> Model
 update _ model =
     model
