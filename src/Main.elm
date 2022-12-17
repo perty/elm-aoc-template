@@ -4,6 +4,7 @@ import Browser
 import Day1
 import Day2
 import Day3
+import Day4
 import Html
 
 
@@ -31,6 +32,7 @@ view model =
         , Day1.view model
         , Day2.view model
         , Day3.view model
+        , Day4.view model
         ]
 
 
