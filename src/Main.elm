@@ -5,6 +5,7 @@ import Day1
 import Day2
 import Day3
 import Day4
+import Day5
 import Html
 
 
@@ -33,6 +34,7 @@ view model =
         , Day2.view model
         , Day3.view model
         , Day4.view model
+        , Day5.view model
         ]
 
 
