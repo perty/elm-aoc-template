@@ -3,6 +3,7 @@ module Main exposing (Model, init, main, update, view)
 import Browser
 import Day1
 import Day2
+import Day3
 import Html
 
 
@@ -29,6 +30,7 @@ view model =
         [ Html.text model
         , Day1.view model
         , Day2.view model
+        , Day3.view model
         ]
 
 
