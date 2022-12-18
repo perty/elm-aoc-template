@@ -1,5 +1,6 @@
 module Day5 exposing (solution1, solution2, view)
 
+import Dict
 import Html
 
 
@@ -14,13 +15,56 @@ view _ =
 
 
 
--- Check each pair if it fully includes the other.
+-- Add crates to their stack.
+-- Move between crates as instructed, reversing the order.
 
 
 solution1 : String -> String
 solution1 input =
-    input
-        |> Debug.toString
+    cratesData
+        |> move 1 2 1
+        |> move 3 1 3
+        |> move 2 2 1
+        |> move 1 1 2
+        |> Dict.values
+        |> List.filterMap List.head
+        |> String.join ""
+
+
+cratesData : Dict.Dict number (List String)
+cratesData =
+    Dict.fromList
+        [ ( 1, [ "N", "Z" ] )
+        , ( 2, [ "D", "C", "M" ] )
+        , ( 3, [ "P" ] )
+        ]
+
+
+move : Int -> Int -> Int -> Dict.Dict Int (List a) -> Dict.Dict Int (List a)
+move number from to crates =
+    let
+        fromList =
+            Dict.get from crates
+                |> Maybe.withDefault []
+
+        toList =
+            Dict.get to crates
+                |> Maybe.withDefault []
+
+        toMove =
+            fromList
+                |> List.take number
+                |> List.reverse
+
+        newFromList =
+            fromList
+                |> List.drop number
+
+        newToList =
+            List.append toMove toList
+    in
+    Dict.insert from newFromList crates
+        |> Dict.insert to newToList
 
 
 solution2 : String -> String
