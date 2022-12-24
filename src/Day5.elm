@@ -2,6 +2,7 @@ module Day5 exposing (solution1, solution2, view)
 
 import Dict
 import Html
+import Matrix
 
 
 view : model -> Html.Html msg
@@ -38,6 +39,24 @@ cratesData =
         , ( 2, [ "D", "C", "M" ] )
         , ( 3, [ "P" ] )
         ]
+
+
+createsData2 : Matrix.Matrix String
+createsData2 =
+    Matrix.empty
+        |> (\m -> Matrix.set m 0 1 "D")
+        |> (\m -> Matrix.set m 1 0 "N")
+        |> (\m -> Matrix.set m 1 1 "C")
+        |> (\m -> Matrix.set m 2 0 "Z")
+        |> (\m -> Matrix.set m 2 1 "M")
+        |> (\m -> Matrix.set m 2 2 "P")
+
+
+
+--parseCrateLine : String -> Dict.Dict Int (List String)
+-- read all first column
+-- read as matrix
+-- get each column
 
 
 move : Int -> Int -> Int -> Dict.Dict Int (List a) -> Dict.Dict Int (List a)
